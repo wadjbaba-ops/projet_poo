@@ -1,8 +1,8 @@
 from zone import Zone
 from materiel import Materiel, TypeMateriel
-from enum import StrEnum
+from enum import Enum
 
-class Specialite(StrEnum):
+class Specialite(Enum):
     exp = "Experimenté"
     nov = "Novice"
 
@@ -31,8 +31,8 @@ class Technicien:
 
     def show_specialites(self):
         s = ""
-        for typeMateriel, specialite in self.__specialites.items():
-            s += f"{typeMateriel}: {specialite.value}\n"
+        for typeMateriel in self.__specialites:
+            s += f"{typeMateriel}: {self.__specialites[typeMateriel].value}\n"
         return s
 
     def set_specialite(self, typeMateriel, specialite):

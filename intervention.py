@@ -1,9 +1,9 @@
 from materiel import Materiel
 from technicien import Technicien
-from enum import StrEnum
-from datetime import date, timedelta
+from enum import Enum
+from datetime import date
 
-class TypeIntervention(StrEnum):
+class TypeIntervention(Enum):
     entr = "Entretien"
     dep = "Dépannage"
 

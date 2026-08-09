@@ -56,19 +56,19 @@ class Client:
     def get_materiel(self):
         return self.__materiels
 
-    def add_materiel(self, adresse):
-        if not isinstance(adresse, Materiel):
-            raise TypeError("L'adresse doit être un objet de type Materiel.")
-        elif adresse in self.__adresses:
-            raise ValueError("Le matériel déjà dans la liste du matériel du client.")
+    def add_materiel(self, materiel):
+        if not isinstance(materiel, Materiel):
+            raise TypeError("Le matériel doit être un objet de type Materiel.")
+        elif materiel in self.__materiels:
+            raise ValueError("Le matériel existe déjà dans la liste du matériel du client.")
         else:
-            self.__adresses.append(adresse)
+            self.__materiels.append(materiel)
 
-    def remove_adresse(self, adresse):
-        if not isinstance(adresse, Materiel):
-            raise TypeError("L'adresse doit être un objet de type Materiel.")
-        elif adresse not in self.__adresses:
+    def remove_materiel(self, materiel):
+        if not isinstance(materiel, Materiel):
+            raise TypeError("Le matériel doit être un objet de type Materiel.")
+        elif materiel not in self.__materiels:
             raise ValueError("Le matériel n'existe pas dans la liste du matériel du client.")
         else:
-            self.__adresses.remove(adresse)
+            self.__materiels.remove(materiel)
     
