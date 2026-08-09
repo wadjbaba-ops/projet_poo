@@ -1,11 +1,29 @@
+from enum import Enum
+
+class TypeMateriel(Enum):
+    pc = ("photocopieuse", 0)
+    imp = ("imprimante", 0)
+    cell = ("telephone cellulaire", 0)
+    tel = ("telecopieuse", 0)
+    mo = ("micro-ordinateur", 0)
+
+    def __init__(self, name, period):
+        self.name = name
+        self.period = period
+
+## il faudrait utiliser des geters qui contiennent des gestion d'execption pour la methode __init__
+## il faudrait également implementer les visibilités des attributs et donc ajouter des getters
+## vous pouver prendre le fichier technicien comme referance
 class Materiel:
-    def __init__(self, id_materiel, marque, modele, client, adresse, zone):
+    def __init__(self, id_materiel, type, marque, modele, client, adresse, zone, periode):
         self.id_materiel = id_materiel
+        self.type = type ## type de materiel
         self.marque = marque
         self.modele = modele
         self.client = client
         self.adresse = adresse
         self.zone = zone
+        self.periode_entretien = periode ## periode d'entretien
 
     def afficher(self):
         print("\n===== MATERIEL =====")
