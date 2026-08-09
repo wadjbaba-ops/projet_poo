@@ -11,9 +11,10 @@ class TypeMateriel(Enum):
         self.name = name
         self.period = period
 
-## il faudrait utiliser des geters qui contiennent des gestion d'execption pour la methode __init__
-## il faudrait également implementer les visibilités des attributs et donc ajouter des getters
+## utiliser des geters qui contiennent des gestion d'execption pour la methode __init__
+## implementer les visibilités des attributs et donc ajouter des getters
 ## vous pouver prendre le fichier technicien comme referance
+## ajouter un attribut historique des entretiens
 class Materiel:
     def __init__(self, id_materiel, type, marque, modele, client, adresse, zone, periode):
         self.id_materiel = id_materiel

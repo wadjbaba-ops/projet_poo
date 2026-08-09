@@ -1,6 +1,7 @@
 from materiel import Materiel
 from technicien import Technicien
 from enum import StrEnum
+from datetime import date, timedelta
 
 class TypeIntervention(StrEnum):
     entr = "Entretien"
@@ -10,7 +11,7 @@ class Intervention:
     def __init__(self, id_entretien, type_entretien, date, materiel, technicien):
         self.__id = self.set_id(id_entretien)
         self.__type = self.set_type(type_entretien)
-        self.__date = []
+        self.__date = 
         self.__materiel = self.set_materiel(materiel)
         self.__technicien = self.set_technicien(technicien)
 
@@ -40,7 +41,7 @@ class Intervention:
 
     def set_date(self, jour, mois, annee):
         if isinstance(jour, int) and isinstance(mois, int) and isinstance(annee, int):
-            self.__date = (jour, mois, annee)
+            self.__date = date(annee, mois, jour)
         else:
             raise TypeError("La date doit être composée de trois entiers (jour, mois, année).")
 

@@ -7,7 +7,7 @@ class Specialite(StrEnum):
     nov = "Novice"
 
 class Technicien:
-    def __init__(self,id, nom, prenom, specialite, zone):
+    def __init__(self,id, nom, prenom, zone):
         self.__id = self.set_id(id)
         self.nom = nom
         self.prenom = prenom
