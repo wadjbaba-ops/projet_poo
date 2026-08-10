@@ -1,11 +1,12 @@
 from enum import Enum
+from datetime import timedelta
 
 class TypeMateriel(Enum):
-    pc = ("photocopieuse", 0)
-    imp = ("imprimante", 0)
-    cell = ("telephone cellulaire", 0)
-    tel = ("telecopieuse", 0)
-    mo = ("micro-ordinateur", 0)
+    pc = ("photocopieuse", timedelta())
+    imp = ("imprimante", timedelta())
+    cell = ("telephone cellulaire", timedelta())
+    tel = ("telecopieuse", timedelta())
+    mo = ("micro-ordinateur", timedelta())
 
     def __init__(self, name, period):
         self.name = name
