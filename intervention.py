@@ -64,6 +64,33 @@ class Intervention:
         else:
             raise TypeError("Le technicien doit être un objet de type Technicien.")
 
+# def lauch_intervention(clients, techniciens):
+#     print("Choisissez parmis la liste des clients (identifiant) :\n")
+#     for     client in clients:
+#         print(f"{clients[client].get_id()}: {clients[client].get_nom()}\n")
+#     client_id = int(input("Identifiant du client : "))
+#     if client_id not in clients:
+#         raise ValueError("Erreur : ce client n'existe pas.")
+#     else:
+#         client = clients[client_id]
+
+#     print("\nChoisissez parmis la liste des matériels du client (identifiant) :\n")
+#     client.show_materiels()
+#     materiel_id = int(input("Identifiant du matériel : "))
+#     if materiel_id not in client.get_materiels():
+#         raise ValueError("Erreur : ce matériel n'existe pas pour ce client.")
+#     else:
+#         materiel = client.get_materiels()[materiel_id]
+
+#     techniciens_disponibles = [technicien for technicien in techniciens.values() if technicien.get_zone() == materiel.zone] 
+#     print("\nChoisissez parmis la liste des techniciens disponibles (identifiant) :\n")
+#     for technicien in techniciens_disponibles:
+#         print(technicien)
+#     technicien_id = int(input("Identifiant du technicien : "))
+#     if technicien_id not in [technicien.get_id() for technicien in techniciens_disponibles]:
+#         raise ValueError("Erreur : ce technicien n'est pas disponible pour cette zone.")
+#     else:
+#         technicien = techniciens[technicien_id]
 
 def register_intervention(clients, techniciens):
     print("\n===== ENREGISTREMENT D'UNE INTERVENTION =====\n")
@@ -118,4 +145,3 @@ def print_facture(interventions, clients):
             print(f"{intervention.get_date().strftime('%d/%m/%Y')} - {intervention.get_type().value} - {intervention.get_materiel().marque} {intervention.get_materiel().modele} ({intervention.get_materiel().id_materiel}) - Technicien : {intervention.get_technicien()}")
             total += 100  # Exemple de coût fixe pour chaque intervention
         print(f"\nTotal à payer : {total} FCFA")
-
