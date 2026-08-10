@@ -1,11 +1,12 @@
 from materiel import Materiel
+from zone import Zone
 
 class Client:
     def __init__(self, id, nom):
         self.__id = id
         self.__nom = nom
-        self.__adresses = []
-        self.__materiels = []
+        self.__adresses = {}
+        self.__materiels = {}
 
     def get_id(self):
         return self.__id
@@ -29,32 +30,38 @@ class Client:
             raise TypeError("Le nom doit être une chaîne de caractères.")
 
     def get_adresses(self):
-        return self.__adresses
+        return dict(self.__adresses)
 
     def show_adresses(self):
         if not self.__adresses:
             return "Aucune adresse enregistrée."
         else:
-            return "\n".join(self.__adresses)
+            return "\n".join(self.__adresses[adresse] for adresse in self.__adresses)
 
     def add_adresse(self, adresse):
-        if not isinstance(adresse, str):
-            raise TypeError("L'adresse doit être une chaîne de caractères.")
+        if not isinstance(adresse, Zone):
+            raise TypeError("L'adresse doit être un objet de type Zone.")
         elif adresse in self.__adresses:
             raise ValueError("L'adresse existe déjà dans la liste des adresses du client.")
         else:
-            self.__adresses.append(adresse)
+            self.__adresses.update({adresse.__id: adresse})
 
     def remove_adresse(self, adresse):
-        if not isinstance(adresse, str):
-            raise TypeError("L'adresse doit être une chaîne de caractères.")
+        if not isinstance(adresse, Zone):
+            raise TypeError("L'adresse doit être un objet de type Zone.")
         elif adresse not in self.__adresses:
             raise ValueError("L'adresse n'existe pas dans la liste des adresses du client.")
         else:
-            self.__adresses.remove(adresse)
+            del self.__adresses[adresse.__id]
 
-    def get_materiel(self):
-        return self.__materiels
+    def get_materiels(self):
+        return dict(self.__materiels)
+
+    def show_materiels(self):
+        if not self.__materiels:
+            return "Aucun matériel enregistré."
+        else:
+            return "\n".join([f"{self.__materiels[materiel].marque} {self.__materiels[materiel].modele} ({self.__materiels[materiel].id_materiel})\n" for materiel in self.__materiels])
 
     def add_materiel(self, materiel):
         if not isinstance(materiel, Materiel):
@@ -62,7 +69,7 @@ class Client:
         elif materiel in self.__materiels:
             raise ValueError("Le matériel existe déjà dans la liste du matériel du client.")
         else:
-            self.__materiels.append(materiel)
+            self.__materiels.update({materiel.id_materiel: materiel})
 
     def remove_materiel(self, materiel):
         if not isinstance(materiel, Materiel):
@@ -70,5 +77,5 @@ class Client:
         elif materiel not in self.__materiels:
             raise ValueError("Le matériel n'existe pas dans la liste du matériel du client.")
         else:
-            self.__materiels.remove(materiel)
+            del self.__materiels[materiel.id_materiel]
     
