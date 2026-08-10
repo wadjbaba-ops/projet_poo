@@ -77,5 +77,4 @@ class Client:
         elif materiel not in self.__materiels:
             raise ValueError("Le matériel n'existe pas dans la liste du matériel du client.")
         else:
-            del self.__materiels[materiel.id_materiel]
-    
+            del self.__materiels[materiel.id_materiel]    

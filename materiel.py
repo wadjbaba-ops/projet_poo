@@ -15,6 +15,8 @@ class TypeMateriel(Enum):
 ## implementer les visibilités des attributs et donc ajouter des getters
 ## vous pouver prendre le fichier technicien comme referance
 ## ajouter un attribut historique des entretiens
+## ajouter une methode pour afficher la prochaine date d'entretien
+## fonction pour assigner les periodes d'entretien
 # materiel.py
 
 class Materiel:
