@@ -120,13 +120,15 @@ def add_specialite(techniciens):
     technicien.set_specialite(typeMateriel, specialite)
 
 def search_technicien(techniciens, materiel):
-    techniciens_disponibles = [technicien for technicien in techniciens.values() if technicien.get_zone() == materiel.get_zone() and materiel.get_type_materiel() in technicien.get_specialites()]
+    techniciens_disponibles = [technicien for technicien in techniciens.values() if technicien.get_zone() == materiel.get_zone() and materiel.get_type_materiel() in technicien.get_specialites() and technicien.get_specialites()[materiel.get_type_meteriel()] == Specialite.exp]
+    if not  techniciens_disponibles:
+        techniciens_disponibles = [technicien for technicien in techniciens.values() if technicien.get_zone() == materiel.get_zone() and materiel.get_type_materiel() in technicien.get_specialites()]
     if not techniciens_disponibles:
-        raise ValueError("Erreur : aucun technicien disponible pour cette zone et ce type de matériel.")
+        raise ValueError("Erreur : aucun technicien disponible pour ce type de matériel dans cette.")
     else:
         print("\nChoisissez parmis la liste des techniciens disponibles (identifiant) :\n")
         for technicien in techniciens_disponibles:
-            print(technicien)
+            print(f"{technicien} : {technicien.get_specialites()[materiel.get_type_materiel()]}")
         technicien_id = int(input("Identifiant du technicien : "))
         if technicien_id not in [technicien.get_id() for technicien in techniciens_disponibles]:
             raise ValueError("Erreur : ce technicien n'est pas disponible pour cette zone et ce type de matériel.")

@@ -9,3 +9,4 @@ clients = {}
 techniciens = {}
 zones = {}
 interventions_nf = {}
+prices = {}

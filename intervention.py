@@ -1,5 +1,5 @@
 from client import Client
-from materiel import Materiel
+from materiel import Materiel, TypeMateriel
 from technicien import Technicien
 from enum import Enum
 from datetime import date
@@ -92,7 +92,7 @@ class Intervention:
 #     else:
 #         technicien = techniciens[technicien_id]
 
-def register_intervention(clients, techniciens):
+def register_intervention(clients, techniciens, interventions):
     print("\n===== ENREGISTREMENT D'UNE INTERVENTION =====\n")
     print("Choisissez parmis la liste des clients (identifiant) :\n")
     for     client in clients:
@@ -122,26 +122,52 @@ def register_intervention(clients, techniciens):
     dates = [date(int(x.split("/")[2]), int(x.split("/")[1]), int(x.split("/")[0])) for x in input("Dates de l'intervention (jj/mm/aaaa) separes par des espaces : ").split(" ")]
     type_intervention = TypeIntervention[input("Type d'intervention (entr pour Entretien, dep pour Dépannage) : ")]
     count = 0
-    interventions = {client_id: []}
     for date in dates:
         for technicien_id in technicien_ids:
             intervention = Intervention(len(materiel.historique_entretien) + 1, type_intervention, date, materiel, techniciens[technicien_id])
             materiel.historique_entretien.append(intervention)
-            interventions[client_id].append(intervention)
+            if client_id not in interventions.keys():
+                interventions.update({client_id: [intervention]})
+            else:
+                interventions[client_id].append(intervention)
             count += 1 
             print(f"\nIntervention enregistrée : {intervention}")
         print(f"\n{count} intervention(s) enregistrée(s) pour le matériel {materiel.id_materiel}")
-        return interventions
 
-def print_facture(interventions, clients):
+def set_prix(prices):
+    print("\n===== METTRE PRIX =====\n")
+    print("Choisir parmis les types de matériel")
+    for typeMateriel in TypeMateriel.__members__:
+        print(typeMateriel)
+    typeMateriel = TypeMateriel[input("Type de matériel : ")]
+    typeIntervention = TypeIntervention[input("Type d'intervention (entr, dep) : ")]
+    prix = int(input("Prix de ce type d'intervention : "))
+    prices.update({typeMateriel: {typeIntervention: prix}})
+
+def print_facture(interventions, clients, prices):
     if not interventions:
         raise ValueError("Aucune intervention à facturer.")
     else:
+        print("\n===== IMPRESSION FACTURE =====\n")
+        print("Pour quel client : ")
+        for client_id in interventions.keys():
+            print(clients[client_id])
+        client = clients[int(input("id du client : "))]
         print("\n===== FACTURE =====\n")
-        print(f"\nClient : {clients[list(interventions.keys())[0]].get_nom()})")
-        print("Interventions :\n")
+        print(client)
         total = 0
-        for intervention in interventions[list(interventions.keys())[0]]:
-            print(f"{intervention.get_date().strftime('%d/%m/%Y')} - {intervention.get_type().value} - {intervention.get_materiel().marque} {intervention.get_materiel().modele} ({intervention.get_materiel().id_materiel}) - Technicien : {intervention.get_technicien()}")
-            total += 100  # Exemple de coût fixe pour chaque intervention
-        print(f"\nTotal à payer : {total} FCFA")
+        for intervention in interventions[client.get_id()]:
+            print(intervention)
+            if intervention.get_materiel().get_typeMateriel() in prices.keys():
+                if intervention.get_type() in prices[intervention.get_materiel().get_typeMateriel()].keys():
+                    total += prices[intervention.get_materiel().get_typeMateriel()][intervention.get_type()]
+                else:
+                    prix = int(intput("Ajouter prix pour ce type d'intervention : "))
+                    total += prix
+                    prices[intervention.get_materiel().get_typeMateriel()].update({intervention.get_type(): prix})
+            else:
+                prix = int(intput("Ajouter prix pour ce type d'intervention : "))
+                total += prix
+                prices.update({intervention.get_materiel().get_typeMateriel(): {{intervention.get_type(): prix}}})
+            print(f"Prix {intervention.get_type().value}: {prices[intervention.get_materiel().get_typeMateriel()][intervention.get_type()]}")
+        print(f"Total: {total}")
