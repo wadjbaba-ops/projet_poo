@@ -1,3 +1,4 @@
+from string import templatelib
 from zone import Zone
 from materiel import Materiel, TypeMateriel
 from enum import Enum
@@ -7,11 +8,12 @@ class Specialite(Enum):
     nov = "Novice"
 
 class Technicien:
-    def __init__(self, id, nom, prenom, zone):
+    def __init__(self, id = None, nom = None, prenom = None, zone = None):
         self.set_id(id)
         self.set_nom(nom)
         self.set_prenom(prenom)
         self.set_zone(zone)
+        self.__specialites = {}
 
     def __str__(self):
         return f"{self.__nom} {self.__prenom} ({self.__id})"
@@ -20,36 +22,38 @@ class Technicien:
         return self.__id
 
     def set_id(self, id):
-        if isinstance(id, int):
+        if id is not None and isinstance(id, int):
             self.__id = id
         else:
-            raise TypeError("L'identifiant doit être un entier.")
+            pass
 
     def get_nom(self):
         return self.__nom
 
     def set_nom(self, nom):
-        if not isinstance(nom, str):
-            raise TypeError("Le nom doit être une chaîne de caractères.")
-        elif nom.strip() == "":
-            raise ValueError("Le nom ne peut pas être vide.")
-        elif not nom.isalpha():
-            raise ValueError("Le nom ne peut contenir que des caractères alphabétiques.")
+        if nom is not None:
+            if not isinstance(nom, str):
+                raise TypeError("Le nom doit être une chaîne de caractères.")
+            elif nom.strip() == "":
+                raise ValueError("Le nom ne peut pas être vide.")
+            elif not nom.isalpha():
+                raise ValueError("Le nom ne peut contenir que des caractères alphabétiques.")
         else:
-            self.__nom = nom
+            pass
 
     def get_prenom(self):
         return self.__prenom
 
     def set_prenom(self, prenom):
-        if not isinstance(prenom, str):
-            raise TypeError("Le prénom doit être une chaîne de caractères.")
-        elif prenom.strip() == "":
-            raise ValueError("Le prénom ne peut pas être vide.")
-        elif not prenom.isalpha():
-            raise ValueError("Le prénom ne peut contenir que des caractères alphabétiques.")
+        if prenom is not None:
+            if not isinstance(prenom, str):
+                raise TypeError("Le prénom doit être une chaîne de caractères.")
+            elif prenom.strip() == "":
+                raise ValueError("Le prénom ne peut pas être vide.")
+            elif not prenom.isalpha():
+                raise ValueError("Le prénom ne peut contenir que des caractères alphabétiques.")
         else:
-            self.__prenom = prenom
+            pass
 
     def get_specialites(self):
         return dict(self.__specialites)
@@ -72,10 +76,10 @@ class Technicien:
         return self.__zone
 
     def set_zone(self, zone):
-        if isinstance(zone, Zone):
+        if zone is not None and isinstance(zone, Zone):
             self.__zone = zone
         else:
-            raise TypeError("La zone doit être un objet de type Zone.")
+            pass
 
 def search_zone(zones):
     print("\nChoisissez parmis la liste des zones (identifiant) :\n")
@@ -142,7 +146,7 @@ def add_specialite(technicien):
     
 
 def assign_technicien(techniciens, materiel):
-    techniciens_disponibles = [technicien for technicien in techniciens.values() if technicien.get_zone() == materiel.get_zone() and materiel.get_type_materiel() in technicien.get_specialites() and technicien.get_specialites()[materiel.get_type_meteriel()] == Specialite.exp]
+    techniciens_disponibles = [technicien for technicien in techniciens.values() if technicien.get_zone() == materiel.get_zone() and materiel.get_type_materiel() in technicien.get_specialites() and technicien.get_specialites()[materiel.get_type_materiel()] == Specialite.exp]
     if not  techniciens_disponibles:
         techniciens_disponibles = [technicien for technicien in techniciens.values() if technicien.get_zone() == materiel.get_zone() and materiel.get_type_materiel() in technicien.get_specialites()]
     if not techniciens_disponibles:

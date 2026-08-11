@@ -99,7 +99,15 @@ def register_intervention(clients, techniciens, interventions):
     technicien_ids = search_technicien(techniciens)
     while True:
         try:
-            dates = [date(int(x.split("/")[2]), int(x.split("/")[1]), int(x.split("/")[0])) for x in input("Dates de l'intervention (jj/mm/aaaa) separes par des espaces : ").split(" ")]
+            dates_str = input("Dates de l'intervention (jj/mm/aaaa) separes par des espaces : ").split(" ")
+            dates = []
+            for x in dates_str:
+                if len(x.split("/")) == 3:
+                    dates.append(date(int(x.split("/")[2]), int(x.split("/")[1]), int(x.split("/")[0])))
+                else:
+                    raise ValueError("Erreur : format de date invalide.")
+            if not dates:
+                raise ValueError("Erreur : aucune date saisie.")
             break
         except ValueError as e:
             print(e)
@@ -174,4 +182,4 @@ def print_facture(interventions, clients, prices):
                 prices.update({intervention.get_materiel().get_typeMateriel(): {intervention.get_type(): prix}})
             print(f"Prix {intervention.get_type().value}: {prices[intervention.get_materiel().get_typeMateriel()][intervention.get_type()]}")
         print(f"Total: {total}")
-        interventions.remove(client.get_id())
+        interventions.pop(client.get_id())
