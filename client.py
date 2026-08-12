@@ -1,5 +1,8 @@
 from materiel import Materiel
 from zone import Zone
+from materiel import Materiel
+from intervention import search_client
+from technicien import search_zone
 
 class Client:
     def __init__(self, id, nom):
@@ -76,4 +79,71 @@ class Client:
         else:
             del self.__materiels[materiel.get_id_materiel()]
 
-    
+
+def register_client(clients, zones):
+    print("===== ENGISTREMENT CLIENT =====")
+    while True:
+        try:
+            name = input("Nom du nouveau client")
+            if name.strip() == "":
+                raise ValueError("Le nom ne peut être vide")
+            else:
+                break
+        except ValueError as e:
+            print(e)
+    client = Client(max(i for i in clients.keys())+1, name)
+    adresse = search_zone(zones)
+    client.add_adresse(adresse)
+    clients.update({client.get_id(): client})
+    return client
+
+def sell_materiel(clients, zones):
+    while True:
+        try:
+            c = int(input("Nouveau client ou client existant (1 ou 2) : "))
+            if c not in [1, 2]:
+                raise ValueError("Choix invalide")
+            else:
+                break
+        except ValueError as e:
+            print(e)
+    if c == 1:
+        client = register_client(clients, zones)
+    else:
+        client = search_client(clients)
+        client.show_adresse(zones)
+        while True:
+            try:
+                c = int(input("Nouvelle adresse ou adresse existante (1 ou 2) : "))
+                if c not in [1, 2]:
+                    raise ValueError("Choix invalide")
+                else:
+                    break
+            except ValueError as e:
+                print(e)
+        if c == 1:
+                adresse = search_zone([zone for zone in zones if zone not in client.get_adresses().values()])
+                client.add_adresse(adresse)
+        else:
+            adresse = search_zone(client.get_adresses())
+    while True:
+        try:
+            marque = int(input("Marque : "))
+            if marque.strip() == "":
+                raise ValueError("La marque ne peut pas être vide")
+            else:
+                break
+        except ValueError as e:
+            print(e)
+    while True:
+        try:
+            modele = int(input("Modele : "))
+            if modele.strip() == "":
+                raise ValueError("La marque ne peut pas être vide")
+            else:
+                break
+        except ValueError as e:
+            print(e)
+    materiel = Materiel(max(i for c in clients.values() for i in c.get_materiels().keys())+1, marque, modele, client, adresse)
+    client.add_materiel()
+    print(materiel)
