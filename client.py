@@ -1,8 +1,9 @@
-from materiel import Materiel
+from materiel import Materiel, set_periode
 from zone import Zone
-from materiel import Materiel
+from materiel import Materiel, TypeMateriel
 from intervention import search_client
 from technicien import search_zone
+from datetime import timedelta
 
 class Client:
     def __init__(self, id, nom):
@@ -126,6 +127,17 @@ def sell_materiel(clients, zones):
                 client.add_adresse(adresse)
         else:
             adresse = search_zone(client.get_adresses())
+    print("Choisir parmis la liste des types de matériel")
+    for type in TypeMateriel.__members__():
+        print(f"{type.name} ({type})")
+    while True:
+        try:
+            type = TypeMateriel[input("Type de matériel : ")]
+            break
+        except ValueError as e:
+            print(e)
+    if type.period == timedelta():
+        set_periode(type)
     while True:
         try:
             marque = int(input("Marque : "))

@@ -215,3 +215,17 @@ def modifier_materiel(liste_materiels):
 
     if materiel is not None:
         materiel.modifier()
+
+def set_periode(typeMateriel):
+    print("===== METTRE PÉRIODE D'ENTRETIEN =====")
+    print("\nChoisissez parmis la liste des spécialités (identifiant) :\n")
+    for typeMateriel in TypeMateriel:
+        print(f"{typeMateriel.name} ({typeMateriel})\n")
+    while True:
+        try:
+            typeMateriel = TypeMateriel[input("Type matériel : ")]
+            typeMateriel.period(timedelta(int(input("Nombre de jours : "))))
+            break
+        except ValueError as e:
+            print(e)
+    print(f"{typeMateriel.name} : {typeMateriel.period}")
