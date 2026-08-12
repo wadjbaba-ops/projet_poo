@@ -1,6 +1,5 @@
-from string import templatelib
 from zone import Zone
-from materiel import Materiel, TypeMateriel
+from materiel import TypeMateriel
 from enum import Enum
 
 class Specialite(Enum):
@@ -144,7 +143,6 @@ def add_specialite(technicien):
         except ValueError as e:
             print(e)         
     
-
 def assign_technicien(techniciens, materiel):
     techniciens_disponibles = [technicien for technicien in techniciens.values() if technicien.get_zone() == materiel.get_zone() and materiel.get_type_materiel() in technicien.get_specialites() and technicien.get_specialites()[materiel.get_type_materiel()] == Specialite.exp]
     if not  techniciens_disponibles:
@@ -164,3 +162,15 @@ def assign_technicien(techniciens, materiel):
                     return techniciens[technicien_id]
             except ValueError as e:
                 print(e)
+
+def fire_technicien(techniciens):
+    print("===== ENLEVER TECHNICIEN =====")
+    technicien_ids = [i.get_id() for i in search_technicien(techniciens)]
+    for technicien_id in technicien_ids:
+        techniciens.pop(technicien_id)
+
+def trans_technicien(techniciens, zones):
+    print("===== TRANFERER TECHNICIEN =====")
+    technicien_ids = [i.get_id() for i in search_technicien(techniciens)]
+    for technicien_id in technicien_ids:
+        techniciens[technicien_id].set_zone(search_zone(zones))

@@ -224,8 +224,21 @@ def set_periode(typeMateriel):
     while True:
         try:
             typeMateriel = TypeMateriel[input("Type matériel : ")]
-            typeMateriel.period(timedelta(int(input("Nombre de jours : "))))
+            typeMateriel.period = timedelta(int(input("Nombre de jours : ")))
             break
         except ValueError as e:
             print(e)
     print(f"{typeMateriel.name} : {typeMateriel.period}")
+
+def search_materiel(client):
+    print("\nChoisissez parmis la liste des matériels du client (identifiant) :\n")
+    client.show_materiels()
+    materiel_id = int(input("Identifiant du matériel : "))
+    while True:
+        try:
+            if materiel_id not in client.get_materiels():
+                raise ValueError("Erreur : ce matériel n'existe pas pour ce client.")
+            else:
+                return client.get_materiels()[materiel_id]
+        except ValueError as e:
+            print(e)

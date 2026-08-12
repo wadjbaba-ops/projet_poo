@@ -159,3 +159,17 @@ def sell_materiel(clients, zones):
     materiel = Materiel(max(i for c in clients.values() for i in c.get_materiels().keys())+1, marque, modele, client, adresse)
     client.add_materiel()
     print(materiel)
+
+def search_client(clients):
+    print("Choisissez parmis la liste des clients (identifiant) :\n")
+    for client in clients.keys():
+        print(clients[client])
+    while True:
+        try:
+            client_id = int(input("Identifiant du client : "))
+            if client_id not in clients.keys():
+                raise ValueError("Erreur : ce client n'existe pas.")
+            else:
+                return clients[client_id]
+        except ValueError as e:
+            print(e)

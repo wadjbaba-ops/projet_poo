@@ -1,5 +1,5 @@
-from client import Client
-from materiel import Materiel, TypeMateriel
+from client import search_client
+from materiel import Materiel, TypeMateriel, search_materiel
 from technicien import Technicien, search_technicien
 from enum import Enum
 from datetime import date
@@ -17,7 +17,7 @@ class Intervention:
         self.set_technicien(technicien)
 
     def __str__(self):
-        return f"ID Entretien: {self.__id}, Type: {self.__type}, Date: {self.__date}, Materiel: {self.__materiel.marque} {self.__materiel.modele} ({self.__materiel.id_materiel}), Technicien: {self.__technicien}"
+        return f"ID Entretien: {self.__id}, Type: {self.__type}, Date: {self.__date}, Materiel: {self.__materiel.get_marque()} {self.__materiel.get_modele()} ({self.__materiel.get_id_materiel()}), Technicien: {self.__technicien}"
 
     def get_id(self):
         return self.__id
@@ -64,39 +64,11 @@ class Intervention:
         else:
             raise TypeError("Le technicien doit être un objet de type Technicien.")
 
-
-def search_client(clients):
-    print("Choisissez parmis la liste des clients (identifiant) :\n")
-    for client in clients.keys():
-        print(clients[client])
-    while True:
-        try:
-            client_id = int(input("Identifiant du client : "))
-            if client_id not in clients.keys():
-                raise ValueError("Erreur : ce client n'existe pas.")
-            else:
-                return clients[client_id]
-        except ValueError as e:
-            print(e)
-
-def search_materiel(client):
-    print("\nChoisissez parmis la liste des matériels du client (identifiant) :\n")
-    client.show_materiels()
-    materiel_id = int(input("Identifiant du matériel : "))
-    while True:
-        try:
-            if materiel_id not in client.get_materiels():
-                raise ValueError("Erreur : ce matériel n'existe pas pour ce client.")
-            else:
-                return client.get_materiels()[materiel_id]
-        except ValueError as e:
-            print(e)
-
 def register_intervention(clients, techniciens, interventions):
     print("\n===== ENREGISTREMENT D'UNE INTERVENTION =====\n")
     client = search_client(clients)
     materiel = search_materiel(client)
-    technicien_ids = search_technicien(techniciens)
+    technicien_ids = [i.get_id() for i in search_technicien(techniciens)]
     while True:
         try:
             dates_str = input("Dates de l'intervention (jj/mm/aaaa) separes par des espaces : ").split(" ")
