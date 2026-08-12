@@ -93,7 +93,7 @@ def register_intervention(clients, techniciens, interventions):
     count = 0
     for date in dates:
         for technicien_id in technicien_ids:
-            intervention = Intervention(max(i for m in clients.get_materiels().values() for i in m.get_historique().keys())+1, type_intervention, date, materiel, techniciens[technicien_id])
+            intervention = Intervention(max((i for m in clients.get_materiels().values() for i in m.get_historique().keys()), default=0)+1, type_intervention, date, materiel, techniciens[technicien_id])
             materiel.historique_entretien.append(intervention)
             if client.get_id() not in interventions.keys():
                 interventions.update({client.get_id(): [intervention]})
@@ -107,7 +107,7 @@ def set_prix(prices):
     print("\n===== METTRE PRIX =====\n")
     print("Choisir parmis les types de matériel")
     for typeMateriel in TypeMateriel.__members__:
-        print(typeMateriel)
+        print(f"{typeMateriel.full_name} ({typeMateriel.name})")
     while True:
         try:
             typeMateriel_str = input("Type de matériel : ").strip().lower()

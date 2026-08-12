@@ -1,7 +1,6 @@
 from materiel import Materiel, set_periode
 from zone import Zone
 from materiel import Materiel, TypeMateriel
-from intervention import search_client
 from technicien import search_zone
 from datetime import timedelta
 
@@ -92,7 +91,7 @@ def register_client(clients, zones):
                 break
         except ValueError as e:
             print(e)
-    client = Client(max(i for i in clients.keys())+1, name)
+    client = Client(max((i for i in clients.keys()), default=0)+1, name)
     adresse = search_zone(zones)
     client.add_adresse(adresse)
     clients.update({client.get_id(): client})
@@ -112,7 +111,7 @@ def sell_materiel(clients, zones):
         client = register_client(clients, zones)
     else:
         client = search_client(clients)
-        client.show_adresse(zones)
+        client.show_adresses()
         while True:
             try:
                 c = int(input("Nouvelle adresse ou adresse existante (1 ou 2) : "))
@@ -123,12 +122,12 @@ def sell_materiel(clients, zones):
             except ValueError as e:
                 print(e)
         if c == 1:
-                adresse = search_zone([zone for zone in zones if zone not in client.get_adresses().values()])
+                adresse = search_zone((zone for zone in zones if zone not in client.get_adresses().values()))
                 client.add_adresse(adresse)
         else:
             adresse = search_zone(client.get_adresses())
     print("Choisir parmis la liste des types de matériel")
-    for type in TypeMateriel.__members__():
+    for type in TypeMateriel.__members__:
         print(f"{type.name} ({type})")
     while True:
         try:
@@ -140,7 +139,7 @@ def sell_materiel(clients, zones):
         set_periode(type)
     while True:
         try:
-            marque = int(input("Marque : "))
+            marque = input("Marque : ")
             if marque.strip() == "":
                 raise ValueError("La marque ne peut pas être vide")
             else:
@@ -149,15 +148,15 @@ def sell_materiel(clients, zones):
             print(e)
     while True:
         try:
-            modele = int(input("Modele : "))
+            modele = input("Modele : ")
             if modele.strip() == "":
                 raise ValueError("La marque ne peut pas être vide")
             else:
                 break
         except ValueError as e:
             print(e)
-    materiel = Materiel(max(i for c in clients.values() for i in c.get_materiels().keys())+1, marque, modele, client, adresse)
-    client.add_materiel()
+    materiel = Materiel(max((i for c in clients.values() for i in c.get_materiels().keys()), default=0)+1 if c.get_meteriels() else 1, marque, modele, client, adresse)
+    client.add_materiel(materiel)
     print(materiel)
 
 def search_client(clients):

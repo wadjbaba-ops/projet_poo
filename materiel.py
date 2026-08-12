@@ -8,8 +8,8 @@ class TypeMateriel(Enum):
     tel = ("telecopieuse", timedelta())
     mo = ("micro-ordinateur", timedelta())
 
-    def __init__(self, name, period):
-        self.name = name
+    def __init__(self, full_name, period):
+        self.full_name = full_name
         self.period = period
 
 ## utiliser des geters qui contiennent des gestion d'execption pour la methode __init__
@@ -220,7 +220,7 @@ def set_periode(typeMateriel):
     print("===== METTRE PÉRIODE D'ENTRETIEN =====")
     print("\nChoisissez parmis la liste des spécialités (identifiant) :\n")
     for typeMateriel in TypeMateriel:
-        print(f"{typeMateriel.name} ({typeMateriel})\n")
+        print(f"{typeMateriel.full_name} ({typeMateriel.name})\n")
     while True:
         try:
             typeMateriel = TypeMateriel[input("Type matériel : ")]
@@ -228,7 +228,7 @@ def set_periode(typeMateriel):
             break
         except ValueError as e:
             print(e)
-    print(f"{typeMateriel.name} : {typeMateriel.period}")
+    print(f"{typeMateriel.full_name} : {typeMateriel.period}")
 
 def search_materiel(client):
     print("\nChoisissez parmis la liste des matériels du client (identifiant) :\n")

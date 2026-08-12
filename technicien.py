@@ -120,10 +120,10 @@ def search_technicien(techniciens):
         print(techniciens[id])
     while True:
         try:
-            technicien_ids = [int(x) for x in input("Identifiant(s) du technicien(s) separes par des espaces : ").split(" ") if int(x) in techniciens.keys()]
+            technicien_ids = (int(x) for x in input("Identifiant(s) du technicien(s) separes par des espaces : ").split(" ") if int(x) in techniciens.keys())
             if len(technicien_ids) == 0:
                 raise ValueError("Erreur : aucun technicien trouvé.")
-            return [techniciens[id] for id in technicien_ids]
+            return (techniciens[id] for id in technicien_ids)
         except ValueError as e:
             print(e)    
 
@@ -144,9 +144,9 @@ def add_specialite(technicien):
             print(e)         
     
 def assign_technicien(techniciens, materiel):
-    techniciens_disponibles = [technicien for technicien in techniciens.values() if technicien.get_zone() == materiel.get_zone() and materiel.get_type_materiel() in technicien.get_specialites() and technicien.get_specialites()[materiel.get_type_materiel()] == Specialite.exp]
+    techniciens_disponibles = (technicien for technicien in techniciens.values() if technicien.get_zone() == materiel.get_zone() and materiel.get_type_materiel() in technicien.get_specialites() and technicien.get_specialites()[materiel.get_type_materiel()] == Specialite.exp)
     if not  techniciens_disponibles:
-        techniciens_disponibles = [technicien for technicien in techniciens.values() if technicien.get_zone() == materiel.get_zone() and materiel.get_type_materiel() in technicien.get_specialites()]
+        techniciens_disponibles = (technicien for technicien in techniciens.values() if technicien.get_zone() == materiel.get_zone() and materiel.get_type_materiel() in technicien.get_specialites())
     if not techniciens_disponibles:
         raise ValueError("Erreur : aucun technicien disponible pour ce type de matériel dans cette.")
     else:
@@ -156,7 +156,7 @@ def assign_technicien(techniciens, materiel):
         while True:
             try:
                 technicien_id = int(input("Identifiant du technicien : "))
-                if technicien_id not in [technicien.get_id() for technicien in techniciens_disponibles]:
+                if technicien_id not in (technicien.get_id() for technicien in techniciens_disponibles):
                     raise ValueError("Erreur : ce technicien n'est pas disponible pour cette zone et ce type de matériel.")
                 else:
                     return techniciens[technicien_id]
@@ -165,12 +165,12 @@ def assign_technicien(techniciens, materiel):
 
 def fire_technicien(techniciens):
     print("===== ENLEVER TECHNICIEN =====")
-    technicien_ids = [i.get_id() for i in search_technicien(techniciens)]
+    technicien_ids = (i.get_id() for i in search_technicien(techniciens))
     for technicien_id in technicien_ids:
         techniciens.pop(technicien_id)
 
 def trans_technicien(techniciens, zones):
     print("===== TRANFERER TECHNICIEN =====")
-    technicien_ids = [i.get_id() for i in search_technicien(techniciens)]
+    technicien_ids = (i.get_id() for i in search_technicien(techniciens))
     for technicien_id in technicien_ids:
         techniciens[technicien_id].set_zone(search_zone(zones))
