@@ -1,6 +1,6 @@
-from client import search_client
-from materiel import Materiel, TypeMateriel, search_materiel
-from technicien import Technicien, search_technicien
+import client as c
+import materiel as m
+import technicien as t
 from enum import Enum
 from datetime import date
 
@@ -50,7 +50,7 @@ class Intervention:
         return self.__materiel
 
     def set_materiel(self, materiel):
-        if isinstance(materiel, Materiel):
+        if isinstance(materiel, m.Materiel):
             self.__materiel = materiel
         else:
             raise TypeError("Le matériel doit être un objet de type Materiel.")
@@ -59,16 +59,16 @@ class Intervention:
         return self.__technicien
 
     def set_technicien(self, technicien):
-        if isinstance(technicien, Technicien):
+        if isinstance(technicien, t.Technicien):
             self.__technicien = technicien
         else:
             raise TypeError("Le technicien doit être un objet de type Technicien.")
 
 def register_intervention(clients, techniciens, interventions):
     print("\n===== ENREGISTREMENT D'UNE INTERVENTION =====\n")
-    client = search_client(clients)
-    materiel = search_materiel(client)
-    technicien_ids = [i.get_id() for i in search_technicien(techniciens)]
+    client = c.search_client(clients)
+    materiel = m.search_materiel(client)
+    technicien_ids = [i.get_id() for i in t.search_technicien(techniciens)]
     while True:
         try:
             dates_str = input("Dates de l'intervention (jj/mm/aaaa) separes par des espaces : ").split(" ")
@@ -94,7 +94,8 @@ def register_intervention(clients, techniciens, interventions):
     for date in dates:
         for technicien_id in technicien_ids:
             intervention = Intervention(max((i for m in clients.get_materiels().values() for i in m.get_historique().keys()), default=0)+1, type_intervention, date, materiel, techniciens[technicien_id])
-            materiel.historique_entretien.append(intervention)
+            if intervention.get_type() == TypeIntervention.entr:
+                materiel.set_historique(intervention)
             if client.get_id() not in interventions.keys():
                 interventions.update({client.get_id(): [intervention]})
             else:
@@ -106,14 +107,14 @@ def register_intervention(clients, techniciens, interventions):
 def set_prix(prices):
     print("\n===== METTRE PRIX =====\n")
     print("Choisir parmis les types de matériel")
-    for typeMateriel in TypeMateriel.__members__:
+    for typeMateriel in m.TypeMateriel.__members__:
         print(f"{typeMateriel.full_name} ({typeMateriel.name})")
     while True:
         try:
             typeMateriel_str = input("Type de matériel : ").strip().lower()
             if typeMateriel_str == "fin":
                 break
-            typeMateriel = TypeMateriel[typeMateriel_str]
+            typeMateriel = m.TypeMateriel[typeMateriel_str]
             typeIntervention = TypeIntervention[input("Type d'intervention (entr, dep) : ")]
             prix = int(input("Prix de ce type d'intervention : "))
             prices.update({typeMateriel: {typeIntervention: prix}})

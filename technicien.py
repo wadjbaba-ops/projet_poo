@@ -1,5 +1,5 @@
-from zone import Zone
-from materiel import TypeMateriel
+import zone as z
+import materiel as m
 from enum import Enum
 
 class Specialite(Enum):
@@ -66,7 +66,7 @@ class Technicien:
     def set_specialite(self, typeMateriel, specialite):
         if not isinstance(specialite, Specialite):
             raise TypeError("La spécialité doit être un membre de l'enum Specialite.")
-        elif not isinstance(typeMateriel, TypeMateriel):
+        elif not isinstance(typeMateriel, m.TypeMateriel):
             raise TypeError("Le type de matériel doit être une chaîne de caractères.")
         else:
             self.__specialites.update({typeMateriel: specialite})
@@ -75,7 +75,7 @@ class Technicien:
         return self.__zone
 
     def set_zone(self, zone):
-        if zone is not None and isinstance(zone, Zone):
+        if zone is not None and isinstance(zone, z.Zone):
             self.__zone = zone
         else:
             pass
@@ -115,6 +115,8 @@ def hire_technicien(techniciens, zones):
     techniciens.update({technicien.get_id(): technicien})
 
 def search_technicien(techniciens):
+    if not techniciens.keys():
+        hire_technicien(techniciens)
     print("Choisissez parmis la liste des techniciens (identifiant) :\n")
     for id in techniciens.keys():
         print(techniciens[id])
@@ -129,7 +131,7 @@ def search_technicien(techniciens):
 
 def add_specialite(technicien):
     print("\nChoisissez parmis la liste des spécialités (identifiant) :\n")
-    for typeMateriel in TypeMateriel:
+    for typeMateriel in m.TypeMateriel:
         print(f"{typeMateriel.name} ({typeMateriel})\n")
     while True:
         try:
@@ -137,7 +139,7 @@ def add_specialite(technicien):
             if typeMateriel_str == "fin":
                 break
             else:
-                typeMateriel = TypeMateriel[typeMateriel_str]
+                typeMateriel = m.TypeMateriel[typeMateriel_str]
                 specialite = Specialite[input("Spécialité (exp pour expérimenté, nov pour novice) : ").lower().strip()]
                 technicien.set_specialite(typeMateriel, specialite)
         except ValueError as e:

@@ -1,3 +1,6 @@
+import intervention as i
+import client as c
+import zone as z
 from enum import Enum
 from datetime import timedelta
 
@@ -22,9 +25,9 @@ class TypeMateriel(Enum):
 
 class Materiel:
 
-    def __init__(self, id_materiel, marque, modele, client, adresse, zone):
+    def __init__(self, id_materiel, marque, modele, client, adresse):
         try:
-            if not isinstance(id_materiel, str) or id_materiel.strip() == "":
+            if not isinstance(id_materiel, int):
                 raise ValueError("L'identifiant du matériel est obligatoire.")
 
             if not isinstance(marque, str) or marque.strip() == "":
@@ -33,21 +36,18 @@ class Materiel:
             if not isinstance(modele, str) or modele.strip() == "":
                 raise ValueError("Le modèle est obligatoire.")
 
-            if not isinstance(client, str) or client.strip() == "":
+            if not isinstance(client, c.Client):
                 raise ValueError("Le client est obligatoire.")
 
-            if not isinstance(adresse, str) or adresse.strip() == "":
+            if not isinstance(adresse, z.Zone):
                 raise ValueError("L'adresse est obligatoire.")
-
-            if not isinstance(zone, str) or zone.strip() == "":
-                raise ValueError("La zone est obligatoire.")
 
             self.__id_materiel = id_materiel
             self.__marque = marque
             self.__modele = modele
             self.__client = client
             self.__adresse = adresse
-            self.__zone = zone
+            self.__historique = {}
 
         except ValueError as e:
             raise ValueError("Erreur lors de la création du matériel : " + str(e))
@@ -67,8 +67,8 @@ class Materiel:
     def get_adresse(self):
         return self.__adresse
 
-    def get_zone(self):
-        return self.__zone
+    def get_historique(self):
+        return dict(self.__historique)
 
     def set_marque(self, marque):
         if not isinstance(marque, str) or marque.strip() == "":
@@ -86,14 +86,13 @@ class Materiel:
         self.__client = client
 
     def set_adresse(self, adresse):
-        if not isinstance(adresse, str) or adresse.strip() == "":
+        if not isinstance(adresse, z.Zone):
             raise ValueError("L'adresse ne peut pas être vide.")
         self.__adresse = adresse
 
-    def set_zone(self, zone):
-        if not isinstance(zone, str) or zone.strip() == "":
-            raise ValueError("La zone ne peut pas être vide.")
-        self.__zone = zone
+    def set_historique(self, entretien):
+        if not isinstance(entretien, i.Intervention) and entretien.get_type() == i.TypeIntervention.entr:
+            self.__historique.update({entretien.get_id() : entretien})
 
     def afficher(self):
         print("\n===== MATERIEL =====")
