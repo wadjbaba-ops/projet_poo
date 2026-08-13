@@ -9,10 +9,10 @@ class TypeIntervention(Enum):
     dep = "Dépannage"
 
 class Intervention:
-    def __init__(self, id, type_intervention, date, materiel, technicien):
+    def __init__(self, id, type_intervention, date_i, materiel, technicien):
         self.set_id(id)
         self.set_type(type_intervention)
-        self.set_date(date)
+        self.set_date(date_i)
         self.set_materiel(materiel)
         self.set_technicien(technicien)
 
@@ -42,7 +42,7 @@ class Intervention:
 
     def set_date(self, date_i):
         if isinstance(date_i, date):
-            self.__date = date(date_i)
+            self.__date = date_i
         else:
             raise TypeError("La date doit être composée de trois entiers (jour, mois, année).")
 
@@ -64,11 +64,11 @@ class Intervention:
         else:
             raise TypeError("Le technicien doit être un objet de type Technicien.")
 
-def register_intervention(clients, techniciens, interventions):
+def register_intervention(clients, techniciens, interventions, zones):
     print("\n===== ENREGISTREMENT D'UNE INTERVENTION =====\n")
     client = c.search_client(clients)
     materiel = m.search_materiel(client)
-    technicien_ids = [i.get_id() for i in t.search_technicien(techniciens)]
+    technicien_ids = [i.get_id() for i in t.search_technicien(techniciens, zones)]
     while True:
         try:
             dates_str = input("Dates de l'intervention (jj/mm/aaaa) separes par des espaces : ").split(" ")
@@ -91,9 +91,9 @@ def register_intervention(clients, techniciens, interventions):
             print(e)
             
     count = 0
-    for date in dates:
+    for datev in dates:
         for technicien_id in technicien_ids:
-            intervention = Intervention(max((i for m in clients.get_materiels().values() for i in m.get_historique().keys()), default=0)+1, type_intervention, date, materiel, techniciens[technicien_id])
+            intervention = Intervention(max((i for client in clients.values() for materiel in client.get_materiels().values() for i in materiel.get_historique().keys()), default=0)+1, type_intervention, datev, materiel, techniciens[technicien_id])
             if intervention.get_type() == TypeIntervention.entr:
                 materiel.set_historique(intervention)
             if client.get_id() not in interventions.keys():
@@ -102,7 +102,7 @@ def register_intervention(clients, techniciens, interventions):
                 interventions[client.get_id()].append(intervention)
             count += 1 
             print(f"\nIntervention enregistrée : {intervention}")
-    print(f"\n{count} intervention(s) enregistrée(s) pour le matériel {materiel.id_materiel}")
+    print(f"\n{count} intervention(s) enregistrée(s) pour le matériel {materiel} du client {client}")
 
 def set_prix(prices):
     print("\n===== METTRE PRIX =====\n")
@@ -126,15 +126,15 @@ def print_facture(interventions, clients, prices):
         raise ValueError("Aucune intervention à facturer.")
     else:
         print("\n===== IMPRESSION FACTURE =====\n")
-        client = search_client(clients)
+        client = c.search_client(clients)
         print("\n===== FACTURE =====\n")
         print(client)
         total = 0
         for intervention in interventions[client.get_id()]:
             print(intervention)
-            if intervention.get_materiel().get_typeMateriel() in prices.keys():
-                if intervention.get_type() in prices[intervention.get_materiel().get_typeMateriel()].keys():
-                    total += prices[intervention.get_materiel().get_typeMateriel()][intervention.get_type()]
+            if intervention.get_materiel().get_type_materiel() in prices.keys():
+                if intervention.get_type() in prices[intervention.get_materiel().get_type_materiel()].keys():
+                    total += prices[intervention.get_materiel().get_type_materiel()][intervention.get_type()]
                 else:
                     while True:
                         try:
@@ -143,7 +143,7 @@ def print_facture(interventions, clients, prices):
                         except ValueError as e:
                             print(e)
                     total += prix
-                    prices[intervention.get_materiel().get_typeMateriel()].update({intervention.get_type(): prix})
+                    prices[intervention.get_materiel().get_type_materiel()].update({intervention.get_type(): prix})
             else:
                 while True:
                     try:
@@ -152,7 +152,7 @@ def print_facture(interventions, clients, prices):
                     except ValueError as e:
                         print(e)
                 total += prix
-                prices.update({intervention.get_materiel().get_typeMateriel(): {intervention.get_type(): prix}})
-            print(f"Prix {intervention.get_type().value}: {prices[intervention.get_materiel().get_typeMateriel()][intervention.get_type()]}")
+                prices.update({intervention.get_materiel().get_type_materiel(): {intervention.get_type(): prix}})
+            print(f"Prix {intervention.get_type().value}: {prices[intervention.get_materiel().get_type_materiel()][intervention.get_type()]}")
         print(f"Total: {total}")
         interventions.pop(client.get_id())

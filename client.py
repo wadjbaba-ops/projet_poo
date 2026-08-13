@@ -1,7 +1,7 @@
 import materiel as m
 import zone as z
 import technicien as t
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 class Client:
     def __init__(self, id, nom):
@@ -9,6 +9,9 @@ class Client:
         self.set_nom(nom)
         self.__adresses = {}
         self.__materiels = {}
+
+    def __str__(self):
+        return f"{self.__nom} ({self.__id})"
 
     def get_id(self):
         return self.__id
@@ -35,13 +38,11 @@ class Client:
         if not self.__adresses:
             return "Aucune adresse enregistrée."
         else:
-            return "\n".join(f"{adresse}" for adresse in self.__adresses.values())
+            return "\n".join(f"> {adresse}" for adresse in self.__adresses.values())
 
     def add_adresse(self, adresse):
         if not isinstance(adresse, z.Zone):
             raise TypeError("L'adresse doit être un objet de type Zone.")
-        elif adresse.get_id() in self.__adresses.keys():
-            raise ValueError("L'adresse existe déjà dans la liste des adresses du client.")
         else:
             self.__adresses.update({adresse.get_id(): adresse})
 
@@ -57,10 +58,10 @@ class Client:
         return dict(self.__materiels)
 
     def show_materiels(self):
-        if not self.__materiels:
+        if not self.__materiels.values():
             return "Aucun matériel enregistré."
         else:
-            return "\n".join([f"{self.__materiels[id_materiel]}\n" for id_materiel in self.__materiels.keys()])
+            return "\n".join(f"> {materiel}" for materiel in self.__materiels.values())
 
     def add_materiel(self, materiel):
         if not isinstance(materiel, m.Materiel):
@@ -80,28 +81,28 @@ class Client:
 
 
 def register_client(clients, zones):
-    print("===== ENGISTREMENT CLIENT =====")
+    print("\n===== ENGISTREMENT CLIENT =====\n")
     while True:
         try:
-            name = input("Nom du nouveau client")
+            name = input("Nom du nouveau client : ")
             if name.strip() == "":
-                raise ValueError("Le nom ne peut être vide")
+                raise ValueError("-> Erreur: Le nom ne peut être vide")
             else:
                 break
         except ValueError as e:
             print(e)
     client = Client(max((i for i in clients.keys()), default=0)+1, name)
-    adresse = t.search_zone(zones)
-    client.add_adresse(adresse)
+    client.add_adresse(t.search_zone(zones))
     clients.update({client.get_id(): client})
     return client
 
 def sell_materiel(clients, zones):
+    print("\n===== VENTE MATÉRIEL =====\n")
     while True:
         try:
             c = int(input("Nouveau client ou client existant (1 ou 2) : "))
             if c not in [1, 2]:
-                raise ValueError("Choix invalide")
+                raise ValueError("-> Erreur: Choix invalide")
             else:
                 break
         except ValueError as e:
@@ -110,24 +111,10 @@ def sell_materiel(clients, zones):
         client = register_client(clients, zones)
     else:
         client = search_client(clients)
-    client.show_adresses()
-    while True:
-        try:
-            c = int(input("Nouvelle adresse ou adresse existante (1 ou 2) : "))
-            if c not in [1, 2]:
-                raise ValueError("Choix invalide")
-            else:
-                break
-        except ValueError as e:
-            print(e)
-    if c == 1:
-            adresse = t.search_zone((zone for zone in zones if zone not in client.get_adresses().values()))
-            client.add_adresse(adresse)
-    else:
-        adresse = t.search_zone(client.get_adresses())
+    adresse = t.search_zone(zones)
     print("Choisir parmis la liste des types de matériel")
     for type in m.TypeMateriel:
-        print(f"{type.full_name} ({type})")
+        print(f"{type.full_name} ({type.name})")
     while True:
         try:
             type = m.TypeMateriel[input("Type de matériel : ")]
@@ -154,19 +141,19 @@ def sell_materiel(clients, zones):
                 break
         except ValueError as e:
             print(e)
-    materiel = m.Materiel(max((i for c in clients.values() for i in c.get_materiels().keys()), default=0)+1, marque, modele, client, adresse)
+    materiel = m.Materiel(max((i for c in clients.values() for i in c.get_materiels().keys()), default=0)+1, marque, modele, client, adresse, type)
     client.add_materiel(materiel)
     print(materiel)
 
 def search_client(clients):
-    print("Choisissez parmis la liste des clients (identifiant) :\n")
-    for client in clients.keys():
-        print(clients[client])
+    print("Choisissez parmis la liste des clients (identifiant) :")
+    for client in clients.values():
+        print(f"> {client}\n")
     while True:
         try:
             client_id = int(input("Identifiant du client : "))
             if client_id not in clients.keys():
-                raise ValueError("Erreur : ce client n'existe pas.")
+                raise ValueError("-> Erreur : ce client n'existe pas.")
             else:
                 return clients[client_id]
         except ValueError as e:

@@ -3,11 +3,13 @@ import technicien as t
 import zone as z
 import intervention as i
 import materiel as m
+from datetime import date
 
-clients = {}
-techniciens = {}
 zones = {1: z.Zone(1, "Dakar", "Dakar", "Dakar")}
-interventions_nf = {}
+clients = {1: c.Client(1, "BurEquip")}
+clients[1].add_materiel(m.Materiel(1, "HP", "200", clients[1], zones[1], m.TypeMateriel.imp))
+techniciens = {1: t.Technicien(1, "Wadj", "Baba", zones[1])}
+interventions_nf = {1: [i.Intervention(1, i.TypeIntervention.dep, date(2005, 11, 9), clients[1].get_materiels()[1], techniciens[1])]}
 prices = {}
 
 def menu():
@@ -40,7 +42,7 @@ while True:
         case 1:
             c.sell_materiel(clients, zones)
         case 2:
-            i.register_intervention(clients, techniciens, interventions_nf)
+            i.register_intervention(clients, techniciens, interventions_nf, zones)
         case 3:
             i.print_facture(interventions_nf, clients, prices)
         case 4:

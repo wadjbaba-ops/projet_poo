@@ -24,8 +24,7 @@ class TypeMateriel(Enum):
 # materiel.py
 
 class Materiel:
-
-    def __init__(self, id_materiel, marque, modele, client, adresse):
+    def __init__(self, id_materiel, marque, modele, client, adresse, typeMateriel):
         try:
             if not isinstance(id_materiel, int):
                 raise ValueError("L'identifiant du matériel est obligatoire.")
@@ -42,11 +41,15 @@ class Materiel:
             if not isinstance(adresse, z.Zone):
                 raise ValueError("L'adresse est obligatoire.")
 
+            if not isinstance(typeMateriel, TypeMateriel):
+                raise ValueError("Doit être objet de type TypeMateriel")
+
             self.__id_materiel = id_materiel
             self.__marque = marque
             self.__modele = modele
             self.__client = client
             self.__adresse = adresse
+            self.__type_materiel = typeMateriel
             self.__historique = {}
 
         except ValueError as e:
@@ -67,6 +70,9 @@ class Materiel:
     def get_adresse(self):
         return self.__adresse
 
+    def get_type_materiel(self):
+        return self.__type_materiel
+
     def get_historique(self):
         return dict(self.__historique)
 
@@ -81,7 +87,7 @@ class Materiel:
         self.__modele = modele
 
     def set_client(self, client):
-        if not isinstance(client, str) or client.strip() == "":
+        if not isinstance(client, c.Client):
             raise ValueError("Le client ne peut pas être vide.")
         self.__client = client
 
@@ -93,6 +99,9 @@ class Materiel:
     def set_historique(self, entretien):
         if not isinstance(entretien, i.Intervention) and entretien.get_type() == i.TypeIntervention.entr:
             self.__historique.update({entretien.get_id() : entretien})
+
+    def __str__(self):
+        return f"{self.__marque} {self.__modele} ({self.__id_materiel})"
 
     def afficher(self):
         print("\n===== MATERIEL =====")
@@ -231,7 +240,7 @@ def set_periode(typeMateriel):
 
 def search_materiel(client):
     print("\nChoisissez parmis la liste des matériels du client (identifiant) :\n")
-    client.show_materiels()
+    print(client.show_materiels())
     materiel_id = int(input("Identifiant du matériel : "))
     while True:
         try:

@@ -37,6 +37,8 @@ class Technicien:
                 raise ValueError("Le nom ne peut pas être vide.")
             elif not nom.isalpha():
                 raise ValueError("Le nom ne peut contenir que des caractères alphabétiques.")
+            else:
+                self.__nom = nom
         else:
             pass
 
@@ -49,8 +51,8 @@ class Technicien:
                 raise TypeError("Le prénom doit être une chaîne de caractères.")
             elif prenom.strip() == "":
                 raise ValueError("Le prénom ne peut pas être vide.")
-            elif not prenom.isalpha():
-                raise ValueError("Le prénom ne peut contenir que des caractères alphabétiques.")
+            else:
+                self.__prenom = prenom
         else:
             pass
 
@@ -81,14 +83,14 @@ class Technicien:
             pass
 
 def search_zone(zones):
-    print("\nChoisissez parmis la liste des zones (identifiant) :\n")
-    for zone in zones:
-        print(zone)
+    print("Choisissez parmis la liste des zones (identifiant) :\n")
+    for zone in zones.values():
+        print(f"> {zone}")
     while True:
         try:
             zone = int(input("Identifiant de la zone : "))
-            if zone not in zones:
-                raise ValueError("Erreur : cette zone n'existe pas.")
+            if zone not in zones.keys():
+                raise ValueError("-> Erreur : cette zone n'existe pas.")
             else:
                 return zones[zone]
         except ValueError as e:
@@ -113,16 +115,17 @@ def hire_technicien(techniciens, zones):
     add_specialite(technicien)
     technicien.set_id(max(techniciens.keys()) + 1 if techniciens else 1)
     techniciens.update({technicien.get_id(): technicien})
+    return technicien
 
-def search_technicien(techniciens):
+def search_technicien(techniciens, zones):
     if not techniciens.keys():
-        hire_technicien(techniciens)
+        return [hire_technicien(techniciens, zones)]
     print("Choisissez parmis la liste des techniciens (identifiant) :\n")
     for id in techniciens.keys():
         print(techniciens[id])
     while True:
         try:
-            technicien_ids = (int(x) for x in input("Identifiant(s) du technicien(s) separes par des espaces : ").split(" ") if int(x) in techniciens.keys())
+            technicien_ids = [int(x) for x in input("Identifiant(s) du technicien(s) separes par des espaces : ").split(" ") if int(x) in techniciens.keys()]
             if len(technicien_ids) == 0:
                 raise ValueError("Erreur : aucun technicien trouvé.")
             return (techniciens[id] for id in technicien_ids)
@@ -130,27 +133,28 @@ def search_technicien(techniciens):
             print(e)    
 
 def add_specialite(technicien):
-    print("\nChoisissez parmis la liste des spécialités (identifiant) :\n")
+    print("Choisissez parmis la liste des spécialités (identifiant) :\n")
     for typeMateriel in m.TypeMateriel:
-        print(f"{typeMateriel.name} ({typeMateriel})\n")
+        print(f"{typeMateriel.name} ({typeMateriel})")
     while True:
         try:
-            typeMateriel_str = input("Type de matériel : ").lower().strip()
+            typeMateriel_str = input("Type de matériel (fin pour finir) : ").lower().strip()
+            specialite_str = input("Spécialité (exp pour expérimenté, nov pour novice) : ").lower().strip()
             if typeMateriel_str == "fin":
                 break
-            else:
+            elif typeMateriel_str not in m.TypeMateriel._member_names_ or specialite_str not in Specialite._member_names_:
                 typeMateriel = m.TypeMateriel[typeMateriel_str]
-                specialite = Specialite[input("Spécialité (exp pour expérimenté, nov pour novice) : ").lower().strip()]
+                specialite = Specialite[specialite_str]
                 technicien.set_specialite(typeMateriel, specialite)
         except ValueError as e:
             print(e)         
     
 def assign_technicien(techniciens, materiel):
-    techniciens_disponibles = (technicien for technicien in techniciens.values() if technicien.get_zone() == materiel.get_zone() and materiel.get_type_materiel() in technicien.get_specialites() and technicien.get_specialites()[materiel.get_type_materiel()] == Specialite.exp)
+    techniciens_disponibles = [technicien for technicien in techniciens.values() if technicien.get_zone() == materiel.get_adresse() and materiel.get_type_materiel() in technicien.get_specialites().keys() and technicien.get_specialites()[materiel.get_type_materiel()] == Specialite.exp]
     if not  techniciens_disponibles:
-        techniciens_disponibles = (technicien for technicien in techniciens.values() if technicien.get_zone() == materiel.get_zone() and materiel.get_type_materiel() in technicien.get_specialites())
+        techniciens_disponibles = [technicien for technicien in techniciens.values() if technicien.get_zone() == materiel.get_adresse() and materiel.get_type_materiel() in technicien.get_specialites().keys()]
     if not techniciens_disponibles:
-        raise ValueError("Erreur : aucun technicien disponible pour ce type de matériel dans cette.")
+        print("Aucun technicien disponible pour ce type de matériel dans cette zone.")
     else:
         print("\nChoisissez parmis la liste des techniciens disponibles (identifiant) :\n")
         for technicien in techniciens_disponibles:
