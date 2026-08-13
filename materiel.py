@@ -2,7 +2,7 @@ import intervention as i
 import client as c
 import zone as z
 from enum import Enum
-from datetime import timedelta
+from datetime import timedelta, date
 
 class TypeMateriel(Enum):
     pc = ("photocopieuse", timedelta())
@@ -15,45 +15,31 @@ class TypeMateriel(Enum):
         self.full_name = full_name
         self.period = period
 
-## utiliser des geters qui contiennent des gestion d'execption pour la methode __init__
-## implementer les visibilités des attributs et donc ajouter des getters
-## vous pouver prendre le fichier technicien comme referance
-## ajouter un attribut historique des entretiens
-## ajouter une methode pour afficher la prochaine date d'entretien
-## fonction pour assigner les periodes d'entretien
-# materiel.py
-
 class Materiel:
-    def __init__(self, id_materiel, marque, modele, client, adresse, typeMateriel):
-        try:
-            if not isinstance(id_materiel, int):
-                raise ValueError("L'identifiant du matériel est obligatoire.")
+    def __init__(self, id_materiel, marque, modele, client, adresse, typeMateriel, datev=date.today()):
+        if not isinstance(id_materiel, int):
+            raise ValueError("L'identifiant du matériel est obligatoire et doit être un entier.")
+        if not isinstance(marque, str) or marque.strip() == "":
+            raise ValueError("La marque est obligatoire.")
+        if not isinstance(modele, str) or modele.strip() == "":
+            raise ValueError("Le modèle est obligatoire.")
+        if not isinstance(client, c.Client):
+            raise ValueError("Le client est obligatoire.")
+        if not isinstance(adresse, z.Zone):
+            raise ValueError("L'adresse (Zone) est obligatoire.")
+        if not isinstance(typeMateriel, TypeMateriel):
+            raise ValueError("Le type de matériel doit être un objet TypeMateriel.")
+        if not isinstance(datev, date):
+            raise("La date de vente doit être de type date")
 
-            if not isinstance(marque, str) or marque.strip() == "":
-                raise ValueError("La marque est obligatoire.")
-
-            if not isinstance(modele, str) or modele.strip() == "":
-                raise ValueError("Le modèle est obligatoire.")
-
-            if not isinstance(client, c.Client):
-                raise ValueError("Le client est obligatoire.")
-
-            if not isinstance(adresse, z.Zone):
-                raise ValueError("L'adresse est obligatoire.")
-
-            if not isinstance(typeMateriel, TypeMateriel):
-                raise ValueError("Doit être objet de type TypeMateriel")
-
-            self.__id_materiel = id_materiel
-            self.__marque = marque
-            self.__modele = modele
-            self.__client = client
-            self.__adresse = adresse
-            self.__type_materiel = typeMateriel
-            self.__historique = {}
-
-        except ValueError as e:
-            raise ValueError("Erreur lors de la création du matériel : " + str(e))
+        self.__id_materiel = id_materiel
+        self.__marque = marque
+        self.__modele = modele
+        self.__client = client
+        self.__adresse = adresse
+        self.__type_materiel = typeMateriel
+        self.__date = datev
+        self.__historique = {}
 
     def get_id_materiel(self):
         return self.__id_materiel
@@ -97,156 +83,173 @@ class Materiel:
         self.__adresse = adresse
 
     def set_historique(self, entretien):
-        if not isinstance(entretien, i.Intervention) and entretien.get_type() == i.TypeIntervention.entr:
-            self.__historique.update({entretien.get_id() : entretien})
+        if not isinstance(entretien, i.Intervention):
+            return
+        if entretien.get_type() == i.TypeIntervention.entr:
+            self.__historique.update({entretien.get_id(): entretien})
+
+    def get_historique(self):
+        return dict(self.__historique)
+
+    def show_historique(self):
+        return "\n".join(f"{entretien}" for entretien in self.__historique.values())
 
     def __str__(self):
         return f"{self.__marque} {self.__modele} ({self.__id_materiel})"
 
     def afficher(self):
-        print("\n===== MATERIEL =====")
-        print("Identifiant :", self.get_id_materiel())
-        print("Marque      :", self.get_marque())
-        print("Modèle      :", self.get_modele())
-        print("Client      :", self.get_client())
-        print("Adresse     :", self.get_adresse())
-        print("Zone        :", self.get_zone())
+        print("\n===== DÉTAILS DU MATÉRIEL =====")
+        print(f"Identifiant : {self.get_id_materiel()}")
+        print(f"Marque      : {self.get_marque()}")
+        print(f"Modèle      : {self.get_modele()}")
+        print(f"Client      : {self.get_client()}")
+        print(f"Adresse     : {self.get_adresse()}")
 
-    def modifier(self):
-        print("\n===== MODIFICATION DU MATERIEL =====")
+    def get_date_entretien(self):
+        if self.__historique:
+            return list(self.__historique.values())[-1].get_date() + self.__type_materiel.period
+        else:
+            return self.__date + self.__type_materiel.period
 
-        marque = input("Nouvelle marque : ")
-        modele = input("Nouveau modèle : ")
-        client = input("Nouveau client : ")
-        adresse = input("Nouvelle adresse : ")
-        zone = input("Nouvelle zone : ")
-
-        try:
-            if marque != "":
-                self.set_marque(marque)
-
-            if modele != "":
-                self.set_modele(modele)
-
-            if client != "":
-                self.set_client(client)
-
-            if adresse != "":
-                self.set_adresse(adresse)
-
-            if zone != "":
-                self.set_zone(zone)
-
-            print("Matériel modifié avec succès.")
-
-        except ValueError as e:
-            print("Erreur :", e)
-
-def ajouter_materiel(liste_materiels):
-    print("\n===== AJOUT D'UN MATERIEL =====")
-
-    id_materiel = input("Identifiant du matériel : ")
-
-    # Vérification de l'identifiant
-    for materiel in liste_materiels:
-        if materiel.get_id_materiel() == id_materiel:
-            print("Erreur : cet identifiant existe déjà.")
-            return
-
-    marque = input("Marque : ")
-    modele = input("Modèle : ")
-    client = input("Client : ")
-    adresse = input("Adresse : ")
-    zone = input("Zone : ")
-
-    try:
-        materiel = Materiel(
-            id_materiel,
-            marque,
-            modele,
-            client,
-            adresse,
-            zone
-        )
-
-        liste_materiels.append(materiel)
-        print("Matériel ajouté avec succès.")
-
-    except ValueError as e:
-        print("Erreur :", e)
-
-
-def afficher_materiels(liste_materiels):
-
-    if len(liste_materiels) == 0:
-        print("\nAucun matériel enregistré.")
-        return
-
-    print("\n===== LISTE DES MATERIELS =====")
-
-    for materiel in liste_materiels:
-        materiel.afficher()
-
-def rechercher_materiel(liste_materiels):
-
-    id_materiel = input(
-        "\nIdentifiant du matériel à rechercher : "
-    )
-
-    for materiel in liste_materiels:
-
-        if materiel.get_id_materiel() == id_materiel:
-            materiel.afficher()
-            return materiel
-
-    print("Matériel introuvable.")
-    return None
-
-def supprimer_materiel(liste_materiels):
-
-    id_materiel = input(
-        "\nIdentifiant du matériel à supprimer : "
-    )
-
-    for materiel in liste_materiels:
-
-        if materiel.get_id_materiel() == id_materiel:
-            liste_materiels.remove(materiel)
-            print("Matériel supprimé avec succès.")
-            return
-
-    print("Matériel introuvable.")
-
-def modifier_materiel(liste_materiels):
-
-    materiel = rechercher_materiel(liste_materiels)
-
-    if materiel is not None:
-        materiel.modifier()
-
-def set_periode(typeMateriel):
-    print("===== METTRE PÉRIODE D'ENTRETIEN =====")
-    print("\nChoisissez parmis la liste des spécialités (identifiant) :\n")
-    for typeMateriel in TypeMateriel:
-        print(f"{typeMateriel.full_name} ({typeMateriel.name})\n")
-    while True:
-        try:
-            typeMateriel = TypeMateriel[input("Type matériel : ")]
-            typeMateriel.period = timedelta(int(input("Nombre de jours : ")))
-            break
-        except ValueError as e:
-            print(e)
-    print(f"{typeMateriel.full_name} : {typeMateriel.period}")
+def set_periode(typeMateriel=None):
+    print("\n===== DÉFINIR LA PÉRIODE D'ENTRETIEN =====")
+    if typeMateriel is not None:
+        while True:
+                try:
+                    jours = int(input(f"Nombre de jours pour l'entretien de {typeMateriel.full_name} -> "))
+                    typeMateriel.period = timedelta(days=jours)
+                    print(f"\n--> Période mise à jour avec succès: {typeMateriel.period.days} jours.")
+                    break
+                except ValueError:
+                    print("-> Erreur : Veuillez saisir un nombre entier de jours.")
+    else:
+        print("Types de matériel:")
+        for tm in TypeMateriel:
+            print(f"> {tm.full_name} ({tm.name})")
+        while True:
+            try:
+                choix = input("Veuillez saisir le code du type de matériel -> ").strip().lower()
+                tm = TypeMateriel[choix]
+                jours = int(input(f"Nombre de jours pour l'entretien de {tm.full_name} -> "))
+                tm.period = timedelta(days=jours)
+                print(f"\n--> Période mise à jour avec succès : {tm.period.days} jours.")
+                break
+            except KeyError:
+                print("-> Erreur : Type de matériel invalide.")
+            except ValueError:
+                print("-> Erreur : Veuillez saisir un nombre entier de jours.")
 
 def search_materiel(client):
-    print("\nChoisissez parmis la liste des matériels du client (identifiant) :\n")
+    print("\n===== SÉLECTION DU MATÉRIEL =====")
     print(client.show_materiels())
-    materiel_id = int(input("Identifiant du matériel : "))
     while True:
         try:
+            materiel_id = int(input("\nIdentifiant du matériel -> "))
             if materiel_id not in client.get_materiels():
-                raise ValueError("Erreur : ce matériel n'existe pas pour ce client.")
-            else:
-                return client.get_materiels()[materiel_id]
+                raise ValueError("-> Erreur : Ce matériel n'appartient pas à ce client.")
+            return client.get_materiels()[materiel_id]
         except ValueError as e:
             print(e)
+
+def notif_entretien(clients):
+    today = date.today()
+    for client in clients.values():
+        for materiel in client.get_materiels().values():
+            if today == (materiel.get_date_entretien() - timedelta(days=1)):
+                print("\n")
+                print("="*50)
+                print(f"Entretien de {materiel} du client {client} due demain")
+                print("="*50)
+            elif today == (materiel.get_date_entretien()):
+                print("\n")
+                print("="*50)
+                print(f"Entretien de {materiel} du client {client} due aujourd'hui")
+                print("="*50)
+            elif today > (materiel.get_date_entretien()):
+                print("\n")
+                print("="*50)
+                print(f"Entretien de {materiel} du client {client} étais due {materiel.get_date_entretien()}")
+                print("="*50)
+
+            
+# def ajouter_materiel(liste_materiels):
+#     print("\n===== AJOUT D'UN MATERIEL =====")
+
+#     id_materiel = input("Identifiant du matériel : ")
+
+#     # Vérification de l'identifiant
+#     for materiel in liste_materiels:
+#         if materiel.get_id_materiel() == id_materiel:
+#             print("Erreur : cet identifiant existe déjà.")
+#             return
+
+#     marque = input("Marque : ")
+#     modele = input("Modèle : ")
+#     client = input("Client : ")
+#     adresse = input("Adresse : ")
+#     zone = input("Zone : ")
+
+#     try:
+#         materiel = Materiel(
+#             id_materiel,
+#             marque,
+#             modele,
+#             client,
+#             adresse,
+#             zone
+#         )
+
+#         liste_materiels.append(materiel)
+#         print("Matériel ajouté avec succès.")
+
+#     except ValueError as e:
+#         print("Erreur :", e)
+
+
+# def afficher_materiels(liste_materiels):
+
+#     if len(liste_materiels) == 0:
+#         print("\nAucun matériel enregistré.")
+#         return
+
+#     print("\n===== LISTE DES MATERIELS =====")
+
+#     for materiel in liste_materiels:
+#         materiel.afficher()
+
+# def rechercher_materiel(liste_materiels):
+
+#     id_materiel = input(
+#         "\nIdentifiant du matériel à rechercher : "
+#     )
+
+#     for materiel in liste_materiels:
+
+#         if materiel.get_id_materiel() == id_materiel:
+#             materiel.afficher()
+#             return materiel
+
+#     print("Matériel introuvable.")
+#     return None
+
+# def supprimer_materiel(liste_materiels):
+
+#     id_materiel = input(
+#         "\nIdentifiant du matériel à supprimer : "
+#     )
+
+#     for materiel in liste_materiels:
+
+#         if materiel.get_id_materiel() == id_materiel:
+#             liste_materiels.remove(materiel)
+#             print("Matériel supprimé avec succès.")
+#             return
+
+#     print("Matériel introuvable.")
+
+# def modifier_materiel(liste_materiels):
+
+#     materiel = rechercher_materiel(liste_materiels)
+
+#     if materiel is not None:
+#         materiel.modifier()

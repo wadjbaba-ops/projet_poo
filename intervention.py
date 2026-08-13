@@ -64,95 +64,98 @@ class Intervention:
         else:
             raise TypeError("Le technicien doit être un objet de type Technicien.")
 
-def register_intervention(clients, techniciens, interventions, zones):
-    print("\n===== ENREGISTREMENT D'UNE INTERVENTION =====\n")
+def register_intervention(clients, techniciens, interventions, zones, historique):
+    print("\n===== ENREGISTREMENT D'UNE INTERVENTION =====")
     client = c.search_client(clients)
+    if not client: return
     materiel = m.search_materiel(client)
-    technicien_ids = [i.get_id() for i in t.search_technicien(techniciens, zones)]
+    print("Sélectionnez le(s) technicien(s) affecté(s) -> ")
+    techniciens_assignes = t.search_technicien(techniciens, zones)
     while True:
+        dates_str = input("\nDate(s) de l'intervention (jj/mm/aaaa, séparées par des espaces) -> ").split()
+        dates = []
         try:
-            dates_str = input("Dates de l'intervention (jj/mm/aaaa) separes par des espaces : ").split(" ")
-            dates = []
             for x in dates_str:
-                if len(x.split("/")) == 3:
-                    dates.append(date(int(x.split("/")[2]), int(x.split("/")[1]), int(x.split("/")[0])))
+                parts = x.split("/")
+                if len(parts) == 3:
+                    dates.append(date(int(parts[2]), int(parts[1]), int(parts[0])))
                 else:
-                    raise ValueError("Erreur : format de date invalide.")
+                    raise ValueError("-> Erreur : Format invalide.")
             if not dates:
-                raise ValueError("Erreur : aucune date saisie.")
+                raise ValueError("-> Erreur : Aucune date saisie.")
             break
         except ValueError as e:
             print(e)
     while True:
         try:
-            type_intervention = TypeIntervention[input("Type d'intervention (entr pour Entretien, dep pour Dépannage) : ")]
+            choix_type = input("Type d'intervention (entr: Entretien, dep: Dépannage) -> ").strip().lower()
+            type_intervention = TypeIntervention[choix_type]
             break
-        except ValueError as e:
-            print(e)
-            
+        except KeyError:
+            print("-> Erreur : Type invalide.")
     count = 0
     for datev in dates:
-        for technicien_id in technicien_ids:
-            intervention = Intervention(max((i for client in clients.values() for materiel in client.get_materiels().values() for i in materiel.get_historique().keys()), default=0)+1, type_intervention, datev, materiel, techniciens[technicien_id])
+        for technicien in techniciens_assignes:
+            intervention = Intervention(max((i.get_id() for i in historique), default=0)+1, type_intervention, datev, materiel, technicien)
             if intervention.get_type() == TypeIntervention.entr:
                 materiel.set_historique(intervention)
             if client.get_id() not in interventions.keys():
                 interventions.update({client.get_id(): [intervention]})
-            else:
+            elif intervention not in interventions[client.get_id()]:
                 interventions[client.get_id()].append(intervention)
+            historique.append(intervention)
             count += 1 
-            print(f"\nIntervention enregistrée : {intervention}")
-    print(f"\n{count} intervention(s) enregistrée(s) pour le matériel {materiel} du client {client}")
+            print(f"--> Intervention enregistrée : {intervention}")
+    print(f"\n--> {count} intervention(s) enregistrée(s) pour le matériel {materiel} du client {client}")
 
-def set_prix(prices):
-    print("\n===== METTRE PRIX =====\n")
-    print("Choisir parmis les types de matériel")
-    for typeMateriel in m.TypeMateriel.__members__:
-        print(f"{typeMateriel.full_name} ({typeMateriel.name})")
-    while True:
-        try:
-            typeMateriel_str = input("Type de matériel : ").strip().lower()
-            if typeMateriel_str == "fin":
+def set_prix(prices, intervention=None):
+    print("\n===== METTRE PRIX =====")
+    if intervention is not None:
+        while True:
+            try:
+                prix = int(input("Prix de ce type d'intervention -> "))
+                prices.update({intervention.get_materiel().get_type_materiel(): {intervention.get_type(): prix}})
                 break
-            typeMateriel = m.TypeMateriel[typeMateriel_str]
-            typeIntervention = TypeIntervention[input("Type d'intervention (entr, dep) : ")]
-            prix = int(input("Prix de ce type d'intervention : "))
-            prices.update({typeMateriel: {typeIntervention: prix}})
-        except ValueError as e:
-            print(e)
+            except ValueError as e:
+                print(e)
+    else:
+        print("Choisir parmis les types de matériel:")
+        for typeMateriel in m.TypeMateriel:
+            print(f"{typeMateriel.full_name} ({typeMateriel.name})")
+        while True:
+            try:
+                typeMateriel_str = input("Type de matériel ('fin' pour finir) -> ").strip().lower()
+                if typeMateriel_str == "fin":
+                    break
+                typeMateriel = m.TypeMateriel[typeMateriel_str]
+                typeIntervention = TypeIntervention[input("Type d'intervention (entr, dep) -> ")]
+                prix = int(input("Prix de ce type d'intervention -> "))
+                prices.update({typeMateriel: {typeIntervention: prix}})
+            except ValueError as e:
+                print(e)
 
 def print_facture(interventions, clients, prices):
-    if not interventions:
-        raise ValueError("Aucune intervention à facturer.")
-    else:
-        print("\n===== IMPRESSION FACTURE =====\n")
-        client = c.search_client(clients)
-        print("\n===== FACTURE =====\n")
-        print(client)
-        total = 0
-        for intervention in interventions[client.get_id()]:
-            print(intervention)
-            if intervention.get_materiel().get_type_materiel() in prices.keys():
-                if intervention.get_type() in prices[intervention.get_materiel().get_type_materiel()].keys():
-                    total += prices[intervention.get_materiel().get_type_materiel()][intervention.get_type()]
-                else:
-                    while True:
-                        try:
-                            prix = int(input("Ajouter prix pour ce type d'intervention : "))
-                            break
-                        except ValueError as e:
-                            print(e)
-                    total += prix
-                    prices[intervention.get_materiel().get_type_materiel()].update({intervention.get_type(): prix})
-            else:
-                while True:
-                    try:
-                        prix = int(input("Ajouter prix pour ce type d'intervention : "))
-                        break
-                    except ValueError as e:
-                        print(e)
-                total += prix
-                prices.update({intervention.get_materiel().get_type_materiel(): {intervention.get_type(): prix}})
-            print(f"Prix {intervention.get_type().value}: {prices[intervention.get_materiel().get_type_materiel()][intervention.get_type()]}")
-        print(f"Total: {total}")
-        interventions.pop(client.get_id())
+    try:
+        if not interventions:
+            raise ValueError("-> Erreur : Aucune intervention à facturer.")
+    except ValueError as e:
+        print(e)
+        return
+    print("\n===== IMPRESSION FACTURE =====")
+    client = c.search_client(clients[c] for c in interventions.keys())
+    for intervention in interventions[client.get_id()]:
+        if intervention.get_materiel().get_type_materiel() not in prices.keys() or intervention.get_type() not in prices[intervention.get_materiel().get_type_materiel()].keys():
+            set_prix(prices, intervention)
+    print("\n===== FACTURE =====")
+    print(client)
+    print("="*19)
+    total = 0
+    for intervention in interventions[client.get_id()]:
+        print(f"> {intervention}")
+        prix = prices[intervention.get_materiel().get_type_materiel()][intervention.get_type()]
+        print(f"  Prix {intervention.get_type().value}: {prix}")
+        print("-"*19)
+        total += prix
+    print("="*19)
+    print(f"Total: {total}")
+    interventions.pop(client.get_id())

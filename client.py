@@ -81,80 +81,64 @@ class Client:
 
 
 def register_client(clients, zones):
-    print("\n===== ENGISTREMENT CLIENT =====\n")
+    print("\n===== ENREGISTREMENT D'UN NOUVEAU CLIENT =====")
     while True:
-        try:
-            name = input("Nom du nouveau client : ")
-            if name.strip() == "":
-                raise ValueError("-> Erreur: Le nom ne peut être vide")
-            else:
-                break
-        except ValueError as e:
-            print(e)
-    client = Client(max((i for i in clients.keys()), default=0)+1, name)
-    client.add_adresse(t.search_zone(zones))
-    clients.update({client.get_id(): client})
+        name = input("Nom du client -> ").strip()
+        if name == "":
+            print("-> Erreur : Le nom ne peut être vide.")
+        else:
+            break
+    client_id = max(clients.keys(), default=0) + 1
+    client = Client(client_id, name)
+    print("Veuillez définir l'adresse principale du client:")
+    client.add_adresse(z.search_zone(zones))
+    clients[client.get_id()] = client
+    print(f"\n--> Client '{client}' enregistré avec succès.")
     return client
 
 def sell_materiel(clients, zones):
-    print("\n===== VENTE MATÉRIEL =====\n")
+    print("\n===== VENTE DE MATÉRIEL =====")
     while True:
         try:
-            c = int(input("Nouveau client ou client existant (1 ou 2) : "))
+            c = int(input("1. Nouveau client\n2. Client existant\nVotre choix -> "))
             if c not in [1, 2]:
-                raise ValueError("-> Erreur: Choix invalide")
-            else:
-                break
-        except ValueError as e:
-            print(e)
-    if c == 1:
-        client = register_client(clients, zones)
-    else:
-        client = search_client(clients)
-    adresse = t.search_zone(zones)
-    print("Choisir parmis la liste des types de matériel")
-    for type in m.TypeMateriel:
-        print(f"{type.full_name} ({type.name})")
-    while True:
-        try:
-            type = m.TypeMateriel[input("Type de matériel : ")]
+                raise ValueError("-> Erreur : Choix invalide.")
             break
         except ValueError as e:
             print(e)
-    if type.period == timedelta():
-        m.set_periode(type)
+    client = register_client(clients, zones) if c == 1 else search_client(clients)
+    adresse = z.search_zone(client.get_adresses())
+    print("Liste des types de matériel disponibles :")
+    for tm in m.TypeMateriel:
+        print(f"> {tm.full_name} ({tm.name})")
     while True:
         try:
-            marque = input("Marque : ")
-            if marque.strip() == "":
-                raise ValueError("La marque ne peut pas être vide")
-            else:
-                break
-        except ValueError as e:
-            print(e)
-    while True:
-        try:
-            modele = input("Modele : ")
-            if modele.strip() == "":
-                raise ValueError("La marque ne peut pas être vide")
-            else:
-                break
-        except ValueError as e:
-            print(e)
-    materiel = m.Materiel(max((i for c in clients.values() for i in c.get_materiels().keys()), default=0)+1, marque, modele, client, adresse, type)
+            choix_type = input("Saisissez le code du type de matériel -> ").strip().lower()
+            type_mat = m.TypeMateriel[choix_type]
+            break
+        except KeyError:
+            print("-> Erreur : Code de matériel inconnu.")
+    if type_mat.period.days == 0:
+        m.set_periode(type_mat)
+    marque = input("Marque du matériel -> ").strip()
+    modele = input("Modèle du matériel -> ").strip()
+    mat_id = max((i for c in clients.values() for i in c.get_materiels().keys()), default=0) + 1
+    materiel = m.Materiel(mat_id, marque, modele, client, adresse, type_mat)
     client.add_materiel(materiel)
-    print(materiel)
+    print(f"\n--> {materiel} vendu et enregistré avec succès.")
 
 def search_client(clients):
-    print("Choisissez parmis la liste des clients (identifiant) :")
+    print("\n===== RECHERCHE DE CLIENT =====")
+    if not clients:
+        print("-> Aucun client enregistré.")
+        return None
     for client in clients.values():
-        print(f"> {client}\n")
+        print(f"> {client}")
     while True:
         try:
-            client_id = int(input("Identifiant du client : "))
+            client_id = int(input("Veuillez saisir l'identifiant du client -> "))
             if client_id not in clients.keys():
-                raise ValueError("-> Erreur : ce client n'existe pas.")
-            else:
-                return clients[client_id]
+                raise ValueError("-> Erreur : Ce client n'existe pas.")
+            return clients[client_id]
         except ValueError as e:
             print(e)
