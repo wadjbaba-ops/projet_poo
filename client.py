@@ -93,14 +93,14 @@ def register_client(clients, zones):
     print("Veuillez définir l'adresse principale du client:")
     client.add_adresse(z.search_zone(zones))
     clients[client.get_id()] = client
-    print(f"\n--> Client '{client}' enregistré avec succès.")
+    print(f"\n--> Client {client} enregistré avec succès.")
     return client
 
 def sell_materiel(clients, zones):
     print("\n===== VENTE DE MATÉRIEL =====")
     while True:
         try:
-            c = int(input("1. Nouveau client\n2. Client existant\nVotre choix -> "))
+            c = int(input("1. Nouveau client\n2. Client existant\n-> "))
             if c not in [1, 2]:
                 raise ValueError("-> Erreur : Choix invalide.")
             break
@@ -128,10 +128,10 @@ def sell_materiel(clients, zones):
     print(f"\n--> {materiel} vendu et enregistré avec succès.")
 
 def search_client(clients):
-    print("\n===== RECHERCHE DE CLIENT =====")
     if not clients:
         print("-> Aucun client enregistré.")
-        return None
+        return
+    print("Choisir parmis la liste des clients:")
     for client in clients.values():
         print(f"> {client}")
     while True:

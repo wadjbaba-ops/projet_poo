@@ -5,7 +5,6 @@ import intervention as i
 import materiel as m
 from datetime import date, timedelta
 
-# Données d'initialisation (identiques à la source)
 zones = {
     1: z.Zone(1, "Zone Dakar Centre", "Dakar", "Dakar"),
     2: z.Zone(2, "Zone Pikine", "Pikine", "Pikine"),
@@ -15,9 +14,9 @@ zones = {
 }
 clients = {1: c.Client(1, "Polytech"),
            2: c.Client(2, "Ecobank")}
-clients[1].add_materiel(m.Materiel(1, "HP", "LaserJet", clients[1], zones[3], m.TypeMateriel.pc))
-clients[1].add_materiel(m.Materiel(2, "HP", "LaserJet", clients[1], zones[3], m.TypeMateriel.pc))
-clients[2].add_materiel(m.Materiel(3, "HP", "OfficeJet Pro", clients[2], zones[1], m.TypeMateriel.tel))
+clients[1].add_materiel(m.Materiel(1, "hp", "LaserJet", clients[1], zones[3], m.TypeMateriel.pc))
+clients[1].add_materiel(m.Materiel(2, "EPSON", "P700", clients[1], zones[3], m.TypeMateriel.imp))
+clients[2].add_materiel(m.Materiel(3, "Brother", "MFC Pro", clients[2], zones[1], m.TypeMateriel.tel))
 clients[1].add_adresse(zones[3])
 clients[2].add_adresse(zones[1])
 clients[2].add_adresse(zones[4])
@@ -26,7 +25,9 @@ techniciens = {
     2: t.Technicien(2, "Baldé", "Youssouf", zones[3]),
     3: t.Technicien(3, "Laye", "Sène", zones[2])
 }
-
+techniciens[1].set_specialite(m.TypeMateriel.tel, t.Specialite.exp)
+techniciens[3].set_specialite(m.TypeMateriel.imp, t.Specialite.nov)
+techniciens[1].set_specialite(m.TypeMateriel.pc, t.Specialite.exp)
 interventions_nf = {}
 prices = {}
 historique = []
@@ -119,8 +120,8 @@ while True:
                     case 3:
                         client = c.search_client(clients)
                         materiel = m.search_materiel(client)
-                        print(f"\n===== HISTORIQUE ENTRETIEN {materiel} =====")
                         if materiel.get_historique():
+                            print(f"\n===== HISTORIQUE ENTRETIEN {materiel} =====")
                             print(materiel.show_historique())
                         else:
                             print("\n--> Aucun entretien enregistré")
@@ -133,7 +134,7 @@ while True:
                     case _:
                         print("-> Erreur : Choix invalide.")
         case 6:
-            print("\n--> Fermeture du programme...")
+            print("\n===== FERMETURE DU PROGRAMME =====")
             break
         case _:
             print("-> Erreur : Choix invalide.")

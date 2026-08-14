@@ -142,9 +142,20 @@ def assign_technicien(techniciens, materiel):
     techniciens_disponibles = [technicien for technicien in techniciens.values() if technicien.get_zone() == materiel.get_adresse() and materiel.get_type_materiel() in technicien.get_specialites().keys() and technicien.get_specialites()[materiel.get_type_materiel()] == Specialite.exp]
     if not  techniciens_disponibles:
         techniciens_disponibles = [technicien for technicien in techniciens.values() if technicien.get_zone() == materiel.get_adresse() and materiel.get_type_materiel() in technicien.get_specialites().keys()]
+    if not  techniciens_disponibles:
+        techniciens_disponibles = [technicien for technicien in techniciens.values() if technicien.get_zone().get_ville() == materiel.get_adresse().get_ville() and materiel.get_type_materiel() in technicien.get_specialites().keys() and technicien.get_specialites()[materiel.get_type_materiel()] == Specialite.exp]
+    if not  techniciens_disponibles:
+        techniciens_disponibles = [technicien for technicien in techniciens.values() if technicien.get_zone().get_ville() == materiel.get_adresse().get_ville() and materiel.get_type_materiel() in technicien.get_specialites().keys()]
+    if not  techniciens_disponibles:
+        techniciens_disponibles = [technicien for technicien in techniciens.values() if technicien.get_zone().get_departement() == materiel.get_adresse().get_departement() and materiel.get_type_materiel() in technicien.get_specialites().keys() and technicien.get_specialites()[materiel.get_type_materiel()] == Specialite.exp]
+    if not  techniciens_disponibles:
+        techniciens_disponibles = [technicien for technicien in techniciens.values() if technicien.get_zone().get_departement() == materiel.get_adresse().get_departement() and materiel.get_type_materiel() in technicien.get_specialites().keys()]
     if not techniciens_disponibles:
         print("-> Aucun technicien disponible pour ce type de matériel dans cette zone.")
     else:
+        if len(techniciens_disponibles) == 1:
+            print(f"{techniciens_disponibles[0]} {techniciens_disponibles[0].get_specialites()[materiel.get_type_materiel()].value} trouvé")
+            return techniciens_disponibles[0]
         print("Choisissez parmis la liste des techniciens disponibles (identifiant):")
         for technicien in techniciens_disponibles:
             print(f"{technicien} : {technicien.get_specialites()[materiel.get_type_materiel()].value}")

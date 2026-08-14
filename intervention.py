@@ -17,7 +17,7 @@ class Intervention:
         self.set_technicien(technicien)
 
     def __str__(self):
-        return f"ID Entretien: {self.__id}, Type: {self.__type}, Date: {self.__date}, Materiel: {self.__materiel.get_marque()} {self.__materiel.get_modele()} ({self.__materiel.get_id_materiel()}), Technicien: {self.__technicien}"
+        return f"ID Entretien: {self.__id}, Type: {self.__type.value}, Date: {self.__date}, Materiel: {self.__materiel.get_marque()} {self.__materiel.get_modele()} ({self.__materiel.get_id_materiel()}), Technicien: {self.__technicien}"
 
     def get_id(self):
         return self.__id
@@ -142,7 +142,7 @@ def print_facture(interventions, clients, prices):
         print(e)
         return
     print("\n===== IMPRESSION FACTURE =====")
-    client = c.search_client(clients[c] for c in interventions.keys())
+    client = c.search_client(dict((c, clients[c]) for c in interventions.keys()))
     for intervention in interventions[client.get_id()]:
         if intervention.get_materiel().get_type_materiel() not in prices.keys() or intervention.get_type() not in prices[intervention.get_materiel().get_type_materiel()].keys():
             set_prix(prices, intervention)
@@ -154,8 +154,8 @@ def print_facture(interventions, clients, prices):
         print(f"> {intervention}")
         prix = prices[intervention.get_materiel().get_type_materiel()][intervention.get_type()]
         print(f"  Prix {intervention.get_type().value}: {prix}")
-        print("-"*19)
         total += prix
     print("="*19)
     print(f"Total: {total}")
+    print("="*19)
     interventions.pop(client.get_id())

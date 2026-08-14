@@ -155,101 +155,19 @@ def notif_entretien(clients):
     today = date.today()
     for client in clients.values():
         for materiel in client.get_materiels().values():
-            if today == (materiel.get_date_entretien() - timedelta(days=1)):
-                print("\n")
-                print("="*50)
-                print(f"Entretien de {materiel} du client {client} due demain")
-                print("="*50)
-            elif today == (materiel.get_date_entretien()):
-                print("\n")
-                print("="*50)
-                print(f"Entretien de {materiel} du client {client} due aujourd'hui")
-                print("="*50)
-            elif today > (materiel.get_date_entretien()):
-                print("\n")
-                print("="*50)
-                print(f"Entretien de {materiel} du client {client} étais due {materiel.get_date_entretien()}")
-                print("="*50)
-
-            
-# def ajouter_materiel(liste_materiels):
-#     print("\n===== AJOUT D'UN MATERIEL =====")
-
-#     id_materiel = input("Identifiant du matériel : ")
-
-#     # Vérification de l'identifiant
-#     for materiel in liste_materiels:
-#         if materiel.get_id_materiel() == id_materiel:
-#             print("Erreur : cet identifiant existe déjà.")
-#             return
-
-#     marque = input("Marque : ")
-#     modele = input("Modèle : ")
-#     client = input("Client : ")
-#     adresse = input("Adresse : ")
-#     zone = input("Zone : ")
-
-#     try:
-#         materiel = Materiel(
-#             id_materiel,
-#             marque,
-#             modele,
-#             client,
-#             adresse,
-#             zone
-#         )
-
-#         liste_materiels.append(materiel)
-#         print("Matériel ajouté avec succès.")
-
-#     except ValueError as e:
-#         print("Erreur :", e)
-
-
-# def afficher_materiels(liste_materiels):
-
-#     if len(liste_materiels) == 0:
-#         print("\nAucun matériel enregistré.")
-#         return
-
-#     print("\n===== LISTE DES MATERIELS =====")
-
-#     for materiel in liste_materiels:
-#         materiel.afficher()
-
-# def rechercher_materiel(liste_materiels):
-
-#     id_materiel = input(
-#         "\nIdentifiant du matériel à rechercher : "
-#     )
-
-#     for materiel in liste_materiels:
-
-#         if materiel.get_id_materiel() == id_materiel:
-#             materiel.afficher()
-#             return materiel
-
-#     print("Matériel introuvable.")
-#     return None
-
-# def supprimer_materiel(liste_materiels):
-
-#     id_materiel = input(
-#         "\nIdentifiant du matériel à supprimer : "
-#     )
-
-#     for materiel in liste_materiels:
-
-#         if materiel.get_id_materiel() == id_materiel:
-#             liste_materiels.remove(materiel)
-#             print("Matériel supprimé avec succès.")
-#             return
-
-#     print("Matériel introuvable.")
-
-# def modifier_materiel(liste_materiels):
-
-#     materiel = rechercher_materiel(liste_materiels)
-
-#     if materiel is not None:
-#         materiel.modifier()
+            if materiel.get_type_materiel().period != timedelta():
+                if today == (materiel.get_date_entretien() - timedelta(days=1)):
+                    print("\n")
+                    print("="*50)
+                    print(f"Entretien de {materiel} du client {client} due demain")
+                    print("="*50)
+                elif today == (materiel.get_date_entretien()):
+                    print("\n")
+                    print("="*50)
+                    print(f"Entretien de {materiel} du client {client} due aujourd'hui")
+                    print("="*50)
+                elif today > (materiel.get_date_entretien()):
+                    print("\n")
+                    print("="*50)
+                    print(f"Entretien de {materiel} du client {client} étais due {materiel.get_date_entretien()}")
+                    print("="*50)
