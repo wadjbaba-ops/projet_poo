@@ -3,7 +3,6 @@ import technicien as t
 import zone as z
 import intervention as i
 import materiel as m
-from datetime import date, timedelta
 
 zones = {
     1: z.Zone(1, "Zone Dakar Centre", "Dakar", "Dakar"),
@@ -27,7 +26,7 @@ techniciens = {
 }
 techniciens[1].set_specialite(m.TypeMateriel.tel, t.Specialite.exp)
 techniciens[3].set_specialite(m.TypeMateriel.imp, t.Specialite.nov)
-techniciens[1].set_specialite(m.TypeMateriel.pc, t.Specialite.exp)
+techniciens[2].set_specialite(m.TypeMateriel.pc, t.Specialite.exp)
 interventions_nf = {}
 prices = {}
 historique = []
